@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.AdMapper">
+
+    <select id="getAdList" resultType="com.xiaoyang.vo.ad.AdVo">
+        select ad.*, ad_type.ad_type_name
+        from ad
+        left join
+        ad_type on
+        ad_type.ad_type_id = ad.ad_type_id
+        <where>
+            <if test="adTypeId != null">
+                ad.ad_type_id = #{adTypeId}
+            </if>
+        </where>
+        order by ad.ad_sort
+
+    </select>
+</mapper>

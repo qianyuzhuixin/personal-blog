@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.ArticleMapper">
+    <update id="updateArticleLookNums">
+        update article
+        set article_look_nums = #{articleLookNums}
+        where article_id = #{articleId}
+    </update>
+
+    <select id="articleList" resultType="com.xiaoyang.vo.article.AdminArticlePageVo">
+        select art.article_id,
+        art.article_type_id,
+        u.user_id,
+        u.user_name,
+        art.article_title,
+        art.article_add_time,
+        art.article_good_nums,
+        art.article_look_nums,
+        art.article_collection_nums,
+        artt.article_type_name
+        from article art
+        left join `user` u
+        on art.user_id = u.user_id
+        left join article_type as artt
+        on art.article_type_id = artt.article_type_id
+        <where>
+            <if test="articleTitle != null and articleTitle != ''">
+                article_title like '%#{articleTitle}%'
+            </if>
+        </where>
+        order by art.article_add_time desc
+    </select>
+
+
+    <select id="myArticles" resultType="com.xiaoyang.vo.article.UserArticlePageVo">
+        select art.article_id,
+        art.article_title,
+        art.article_add_time,
+        art.article_look_nums,
+        art.article_cover_url,
+        artt.article_type_name
+        from article art
+        left join article_type as artt
+        on art.article_type_id = artt.article_type_id
+        <where>
+            <if test="userId != null and userId != ''">
+                art.user_id = #{userId}
+            </if>
+        </where>
+        order by art.article_add_time desc
+    </select>
+    <select id="showArticle" resultType="com.xiaoyang.vo.article.ShowArticleVo">
+        select art.article_id,
+        art.article_title,
+        art.article_content,
+        art.article_add_time,
+        art.article_look_nums,
+        art.article_good_nums,
+        art.article_collection_nums,
+        art.article_type_id,
+        artt.article_type_name,
+        u.user_name
+        from article art
+        left join article_type as artt
+        on art.article_type_id = artt.article_type_id
+        left join user as u
+        on art.user_id = u.user_id
+        <where>
+            <if test="articleId != null and articleId != ''">
+                and art.article_id = #{articleId}
+            </if>
+        </where>
+    </select>
+</mapper>

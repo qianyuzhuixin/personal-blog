@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.ArticleTypeMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaoyang.pojo.ArticleType">
+        <id property="articleTypeId" column="article_type_id" jdbcType="VARCHAR"/>
+        <result property="articleTypeName" column="article_type_Name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        article_type_id
+        ,article_type_Name
+    </sql>
+    <select id="getSonArticleType" resultType="com.xiaoyang.vo.article.ArticleTypeVo">
+        select *
+        from article_type
+        where article_type_level = 2
+        <if test="articleTypeParentId != null ">
+            and article_type_parent_id = #{articleTypeParentId}
+        </if>
+        order by article_type_sort
+    </select>
+
+    <select id="getArticleTypeList" resultType="com.xiaoyang.vo.article.ArticleTypeVo">
+        select *
+        from article_type
+        where article_type_level = 1
+        order by article_type_sort
+    </select>
+</mapper>

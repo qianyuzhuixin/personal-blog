@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.UserCollectMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaoyang.pojo.UserCollect">
+        <id property="userCollectId" column="user_collect_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="collectArticleId" column="collect_article_id" jdbcType="VARCHAR"/>
+        <result property="collectTime" column="collect_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_collect_id
+        ,user_id,collect_article_id,
+        collect_time
+    </sql>
+
+
+    <select id="getUserCollects" resultType="com.xiaoyang.vo.article.UserCollectArticlePageVo">
+        select art.article_id,
+        art.article_title,
+        art.article_cover_url,
+        art.article_look_nums,
+        art.article_good_nums,
+        art.article_collection_nums,
+        art.article_add_time,
+        artt.article_type_name,
+        artt.article_type_id
+        from user_collect as uc
+        left join article as art
+        on art.article_id = uc.collect_article_id
+        left join article_type as artt
+        on art.article_type_id = artt.article_type_id
+        <where>
+            <if test="userId != null and userId != ''">
+                uc.user_id = #{userId}
+            </if>
+        </where>
+        order by uc.collect_time desc
+    </select>
+</mapper>

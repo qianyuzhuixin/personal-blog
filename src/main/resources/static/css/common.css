@@ -1,0 +1,13 @@
+.thumbnail {
+    width: 85px;
+}
+
+.my-table td {
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+.my-table th {
+    text-align: center;
+}
+

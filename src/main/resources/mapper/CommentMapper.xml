@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.CommentMapper">
+    <select id="showComment" resultType="com.xiaoyang.vo.comment.CommentVo">
+        SELECT com.*,
+        us.user_name
+        FROM `comment` as com
+        left join `user` as us on com.user_id = us.user_id
+        <where>
+            <if test="articleId != null and articleId != ''">
+                and com.article_id = #{articleId}
+            </if>
+        </where>
+        ORDER BY com.comment_good_nums DESC,com.comment_time ASC
+    </select>
+</mapper>

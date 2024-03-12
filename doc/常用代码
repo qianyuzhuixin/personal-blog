@@ -1,0 +1,92 @@
+jQuery 更改 radio 选中：
+$(":radio[name='userFrozenUpdate'][value='" + userFrozen + "']").prop("checked", "checked");
+jQuery 获取 radio 选中值：
+let userFrozen = $("input[name='userFrozenUpdate']:checked").val();
+jQuery 提交：
+$.post("/xyadmin/updateArticleType", {
+                articleTypeId: articleTypeId,
+                articleTypeName: articleTypeName,
+                articleTypeSort: articleTypeSort
+            },
+            function (data) {
+                if (data.code == 200) {
+                    alert("修改成功！")
+                    location.reload();
+                    return;
+                }
+                warningZuiMsg(data.message);
+            });
+
+分页条：
+ <div class="panel">
+        <div class="panel-body" style="text-align: center">
+            <ul class="pager pager-pills" style="">
+                <li class="previous" onclick="getNewData(1)">
+                    <a href="javaScript:void(0)"><i class="icon icon-step-backward"></i></a>
+                </li>
+                <#if userList.currentPage lte 1>
+                    <li class="previous disabled">
+                        <a href="javaScript:void(0)"><i class="icon icon-chevron-left"></i></a>
+                    </li>
+                <#else >
+                    <li class="previous" onclick="getNewData('${userList.currentPage-1}')">
+                        <a href="javaScript:void(0)"><i class="icon icon-chevron-left"></i></a>
+                    </li>
+                </#if>
+                <li>
+                    <a href="javaScript:void(0)" class="btn">第${userList.currentPage}页/共${userList.getTotalPages()}
+                        页</a>
+                </li>
+                <#if userList.currentPage gte userList.getTotalPages()>
+                    <li class="next disabled">
+                        <a href="javaScript:void(0)"><i class="icon icon-chevron-right"></i></a>
+                    </li>
+                <#else>
+                    <li class="next" onclick="getNewData('${userList.currentPage+1}')">
+                        <a href="javaScript:void(0)"><i class="icon icon-chevron-right"></i></a>
+                    </li>
+                </#if>
+                <li class="previous" onclick="getNewData('${userList.getTotalPages()}')">
+                    <a href="javaScript:void(0)"><i class="icon icon-step-forward"></i></a>
+                </li>
+                <li class="next">
+                    <a href="javaScript:void(0)"><input type="number"
+                                                        id="renderPageNumber"
+                                                        maxlength="5"
+                                                        style="height: 20px;width: 50px;"
+                                                        oninput="value = value.replace(/[^\d]/g,'')">
+                    </a>
+                </li>
+                <li class="next">
+                    <a href="javaScript:void(0)" onclick="renderPage()">
+                        跳转
+                    </a>
+                </li>
+            </ul>
+        </div>
+</div>
+
+分页函数
+ function getNewData(pageNumber) {
+        if (!checkNotNull(pageNumber)) {
+            pageNumber = 1;
+        }
+        window.location.href = "/xyadmin/userList?pageNum=" + pageNumber + "<#if (userName??&&userName?length>0)>&userName=${userName!}</#if>";
+
+    }
+
+    function renderPage() {
+        let renderPageNumber = $("#renderPageNumber").val();
+        if (!checkNotNull(renderPageNumber)) {
+            new $.zui.Messager("请输入页码", {
+                type: 'warning',
+                placement: 'center'
+            }).show();
+            return;
+        }
+        let totalPage = '${userList.getTotalPages()}';
+        if (parseInt(renderPageNumber) > parseInt(totalPage)) {
+            renderPageNumber = totalPage;
+        }
+        getNewData(renderPageNumber);
+    }

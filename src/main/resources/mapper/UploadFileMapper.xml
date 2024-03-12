@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoyang.mapper.UploadFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaoyang.pojo.UploadFile">
+            <id property="uploadFileListId" column="upload_file_list_id" jdbcType="VARCHAR"/>
+            <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
+            <result property="fileUrl" column="file_url" jdbcType="VARCHAR"/>
+            <result property="uploadTime" column="upload_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        upload_file_list_id,file_size,file_url,
+        upload_time
+    </sql>
+</mapper>
