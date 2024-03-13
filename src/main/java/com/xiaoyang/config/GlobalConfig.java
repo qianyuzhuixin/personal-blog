@@ -36,7 +36,7 @@ public class GlobalConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/xyadmin/login", "/xyadmin/logout", "/xyadmin/adminLogin");
         // 普通用户拦截器
         registry.addInterceptor(getUserInterceptor()).addPathPatterns("/user/**")
-                .excludePathPatterns("/user/logInOrSignIn", "/user/logOut", "/user/login", "/user/signIn", "/user/showArticle", "/user/showComment");
+                .excludePathPatterns("/user/logInOrSignIn", "/user/logOut", "/user/login", "/user/signIn", "/user/showArticle", "/user/showComment", "/user/showRecoverComment");
     }
 
 }

@@ -164,13 +164,14 @@
     }
 
     //评论回复
-    function recover(commentId, type) {
+    function recover(commentId, type, topCommentId) {
         deleteCommentPeople()
         if (type == 1) {
-            beRepliedCommentId = commentId;
             topLevelCommentId = commentId;
+        } else if (type == 2) {
+            topLevelCommentId = topCommentId;
         }
-
+        beRepliedCommentId = commentId;
         let userName = ''
 
         <#if Session["user"]?exists>
@@ -215,7 +216,9 @@
                         data.data.commentContext,
                         data.data.replyCommentId,
                         data.data.commentGoodNums,
-                        data.data.isGood))
+                        data.data.isGood,
+                        data.data.status,
+                        data.data.topLevelCommentId))
                 deleteCommentPeople()
                 return
             } else {
@@ -228,7 +231,7 @@
     function addRecoverHtml(commentTime, replyUserName,
                             beRepliedUserName, commentContext,
                             replyCommentId, commentGoodNums,
-                            isGood, commentStatus) {
+                            isGood, commentStatus, topLevelCommentId) {
         let comment =
             '<div class="comment">' +
             '<div class="content">' +
@@ -240,7 +243,7 @@
         }
         comment += '</div><div class="text">' + '&emsp;&emsp;' + commentContext + '</div>' +
             '<div class="actions">' +
-            '<span onclick="recover(\'' + replyCommentId + '\')"  class="palm img-thumbnail background-deep">回复</span>';
+            '<span onclick="recover(\'' + replyCommentId + '\',2,\'' + topLevelCommentId + '\')"  class="palm img-thumbnail background-deep">回复</span>';
         if (isGood == 1) {
             comment += '  <span onclick="goodComment(this,\'' + replyCommentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
                 '</div>' +
@@ -283,7 +286,8 @@
                                 replyCommentVos[j].replyCommentId,
                                 replyCommentVos[j].commentGoodNums,
                                 replyCommentVos[j].isGood,
-                                replyCommentVos[j].commentStatus))
+                                replyCommentVos[j].commentStatus,
+                                replyCommentVos[j].topLevelCommentId))
                     }
                     return
                 } else {
@@ -387,7 +391,8 @@
                                     replyCommentVos[j].replyCommentId,
                                     replyCommentVos[j].commentGoodNums,
                                     replyCommentVos[j].isGood,
-                                    replyCommentVos[j].commentStatus))
+                                    replyCommentVos[j].commentStatus,
+                                    replyCommentVos[j].topLevelCommentId))
                         }
                     }
                     return
