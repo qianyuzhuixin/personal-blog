@@ -34,6 +34,6 @@
                  LEFT JOIN `user` as u ON u.user_id = com.user_id
                  LEFT JOIN `user` as u2 ON u2.user_id = com2.user_id
         where comr.top_level_comment_id = #{commentId}
-        ORDER BY com.comment_time DESC
+        ORDER BY com.comment_good_nums DESC, com.comment_time ASC
     </select>
 </mapper>

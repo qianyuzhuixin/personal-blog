@@ -207,7 +207,15 @@
             if (data.code == 200) {
                 successZuiMsg("评论成功！")
                 $("#commentContext").val("")
-                $('#1' + beRepliedCommentId).prepend(addRecoverHtml(data.data.commentTime, data.data.replyUserName, data.data.beRepliedUserName, data.data.commentContext, data.data.replyCommentId, data.data.commentGoodNums, data.data.isGood))
+                $('#1' + beRepliedCommentId)
+                    .prepend(addRecoverHtml(
+                        data.data.commentTime,
+                        data.data.replyUserName,
+                        data.data.beRepliedUserName,
+                        data.data.commentContext,
+                        data.data.replyCommentId,
+                        data.data.commentGoodNums,
+                        data.data.isGood))
                 deleteCommentPeople()
                 return
             } else {
@@ -217,7 +225,10 @@
     }
 
     // 添加回复html
-    function addRecoverHtml(commentTime, replyUserName, beRepliedUserName, commentContext, replyCommentId, commentGoodNums, isGood, commentStatus) {
+    function addRecoverHtml(commentTime, replyUserName,
+                            beRepliedUserName, commentContext,
+                            replyCommentId, commentGoodNums,
+                            isGood, commentStatus) {
         let comment =
             '<div class="comment">' +
             '<div class="content">' +
@@ -311,11 +322,29 @@
                     if (totalPage > pageNumber) {
                         $('#moreComment').show();
                     }
-
                     for (let i = 0; i < commentList.length; i++) {
-                        $('#commentsList').append(addCommentHtml(commentList[i].commentTime, commentList[i].userName, commentList[i].commentContext, commentList[i].commentId, commentList[i].commentGoodNums, commentList[i].isGood))
+                        $('#commentsList')
+                            .append(addCommentHtml(
+                                commentList[i].commentTime,
+                                commentList[i].userName,
+                                commentList[i].commentContext,
+                                commentList[i].commentId,
+                                commentList[i].commentGoodNums,
+                                commentList[i].isGood))
+                        let replyCommentVos = commentList[i].replyCommentVos;
+                        for (let j = 0; j < replyCommentVos.length; j++) {
+                            $('#1' + replyCommentVos[j].topLevelCommentId)
+                                .append(addRecoverHtml(
+                                    replyCommentVos[j].commentTime,
+                                    replyCommentVos[j].replyUserName,
+                                    replyCommentVos[j].beRepliedUserName,
+                                    replyCommentVos[j].commentContext,
+                                    replyCommentVos[j].replyCommentId,
+                                    replyCommentVos[j].commentGoodNums,
+                                    replyCommentVos[j].isGood,
+                                    replyCommentVos[j].commentStatus))
+                        }
                     }
-
                     return
                 } else {
                     warningZuiMsg("页面出错！")
@@ -364,18 +393,18 @@
             '<span onclick="recover(\'' + commentId + '\',1)"  class="palm img-thumbnail background-deep">回复</span>';
 
         if (isGood == 1) {
-            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
-                '</div>' +
-                '</div>' +
-                '<div class="comments-list" id=1' + commentId + '></div>'
-            '</div>'
+            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
         } else {
-            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
-                '</div>' +
-                '</div>' +
-                '<div class="comments-list" id=1' + commentId + '></div>'
-            '</div>'
+            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
         }
+        comment += '</div>' +
+            '</div>' +
+            '<div class="comments-list" id=1' + commentId + '></div>' +
+            '<span  class="palm moreComment pull-right moreComment" ' +
+            'onclick="showReplyComment(\'' + commentId + '\')">更多评论' +
+            '<i class="icon icon-double-angle-down"></i>' +
+            '</span>' +
+            '</div>'
 
         return comment;
     }
