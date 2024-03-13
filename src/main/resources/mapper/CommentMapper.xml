@@ -12,7 +12,14 @@
             <if test="articleId != null and articleId != ''">
                 and com.article_id = #{articleId}
             </if>
+            and com.comment_status = 0
         </where>
         ORDER BY com.comment_good_nums DESC,com.comment_time ASC
+    </select>
+    <select id="getUserInfoByCommentId" resultType="com.xiaoyang.pojo.User">
+        SELECT com.user_id, us.user_name
+        FROM `comment` as com
+                 left join `user` as us on com.user_id = us.user_id
+        WHERE com.comment_id = #{commentId}
     </select>
 </mapper>

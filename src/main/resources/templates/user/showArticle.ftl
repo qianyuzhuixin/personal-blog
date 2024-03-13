@@ -40,10 +40,8 @@
                               onclick="showComment('${article.articleId!}')">更多评论<i
                                     class="icon icon-double-angle-down"></i></span>
                         <br/>
-                        <label for="comment-text" style="font-size: small">评论：</label>
-                        <p class="recoverPeople">回复<strong>123</strong><span class="palm"
-                                                                               onclick="deleteCommentPeople()">×</span>
-                        </p>
+                        <label for="comment-text" id="replyPeopleParent">评论：
+                        </label>
                         <div class="reply-form" id="commentReplyForm2" style="display: flex">
                             <textarea class="form-control new-comment-text" rows="3" id="commentContext"
                                       name="commentContext"
@@ -82,7 +80,7 @@
     }
 
     .goodClick {
-        background-color: #f15959;
+        background-color: #FCEBEB;
     }
 
     h1 {
@@ -155,41 +153,91 @@
     }
 </style>
 <script>
-    let recoverCommentId = ''
+    let beRepliedCommentId = ''
+    let topLevelCommentId = ''
 
     //删除回复人
     function deleteCommentPeople() {
-        recoverCommentId = '';
+        beRepliedCommentId = '';
+        topLevelCommentId = '';
+        $("#recoverPeople").empty().remove()
     }
 
     //评论回复
-    function recover(commentId) {
-        recoverCommentId = commentId + '';
+    function recover(commentId, type) {
+        deleteCommentPeople()
+        if (type == 1) {
+            beRepliedCommentId = commentId;
+            topLevelCommentId = commentId;
+        }
 
+        let userName = ''
 
-        // 为id为commentId
-        $('#' + commentId).prepend()
+        <#if Session["user"]?exists>
+        $.post("/user/getReplyPeople", {
+            commentId: commentId
+        }, function (data) {
+            if (data.code == 200) {
+                userName = data.data.userName
+                let context = '<p class="recoverPeople" id="recoverPeople">回复<strong>@' + userName + '</strong><span class="palm" onclick = "deleteCommentPeople()" >×</span></p>'
+                $("#replyPeopleParent").append(context)
+                $("#commentContext").focus();
+                return
+            } else {
+                warningZuiMsg(data.message)
+            }
+        })
+        <#else >
+        warningZuiMsg('请先登录')
+        </#if>
+    }
+
+    // 发表回复评论
+    function saveReplyComment() {
+        let commentContext = $("#commentContext").val();
+        if (!checkNotNull(commentContext) || commentContext.length < 1) {
+            warningZuiMsg("请填写评论！")
+            return
+        }
+        $.post("/user/saveReplyComment", {
+            topLevelCommentId: topLevelCommentId,
+            beRepliedCommentId: beRepliedCommentId,
+            commentContext: commentContext,
+        }, function (data) {
+            if (data.code == 200) {
+                successZuiMsg("评论成功！")
+                $("#commentContext").val("")
+                $('#1' + beRepliedCommentId).prepend(addRecoverHtml(data.data.commentTime, data.data.replyUserName, data.data.beRepliedUserName, data.data.commentContext, data.data.replyCommentId, data.data.commentGoodNums, data.data.isGood))
+                deleteCommentPeople()
+                return
+            } else {
+                warningZuiMsg(data.message)
+            }
+        })
     }
 
     // 添加回复html
-    function addRecoverHtml(commentTime, userName, commentContext, commentId, commentGoodNums, isGood) {
-        let comment = '<div class="comments-list">' +
+    function addRecoverHtml(commentTime, replyUserName, beRepliedUserName, commentContext, replyCommentId, commentGoodNums, isGood, commentStatus) {
+        let comment =
             '<div class="comment">' +
             '<div class="content">' +
             '<div class="pull-right text-muted">' + commentTime + '</div>' +
-            '<div><i class="icon icon-user"></i><strong>' + userName +
-            '</strong><span class="text-muted">回复</span>' + recoverUserName + '</div>' +
-            '<div class="text">' + '&emsp;&emsp;' + commentContext + '</div>' +
+            '<div><i class="icon icon-user"></i><strong>' + replyUserName +
+            '</strong>'
+        if (commentStatus == 2) {
+            comment += '<span class="text-muted">回复</span>' + beRepliedUserName
+        }
+        comment += '</div><div class="text">' + '&emsp;&emsp;' + commentContext + '</div>' +
             '<div class="actions">' +
-            '<span onclick="recover(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep">回复</span>';
+            '<span onclick="recover(\'' + replyCommentId + '\')"  class="palm img-thumbnail background-deep">回复</span>';
         if (isGood == 1) {
-            comment += '  <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
-            '</div>' +
-            '</div>' + '</div>' + '</div>'
+            comment += '  <span onclick="goodComment(this,\'' + replyCommentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
+                '</div>' +
+                '</div>' + '</div>'
         } else {
-            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
-            '</div>' +
-            '</div>' + '</div>' + '</div>'
+            comment += ' <span onclick="goodComment(this,\'' + replyCommentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
+                '</div>' +
+                '</div>' + '</div>'
         }
 
         return comment;
@@ -206,7 +254,6 @@
                 if (data.code == 200) {
                     $(obj).addClass('goodClick')
                     let goodTxt = $(obj).text();
-                    console.log(goodTxt)
                     goodTxt = goodTxt.replace('点赞', '');
                     goodTxt = goodTxt.trim()
                     goodTxt = parseInt(goodTxt) + 1;
@@ -268,55 +315,66 @@
                     for (let i = 0; i < commentList.length; i++) {
                         $('#commentsList').append(addCommentHtml(commentList[i].commentTime, commentList[i].userName, commentList[i].commentContext, commentList[i].commentId, commentList[i].commentGoodNums, commentList[i].isGood))
                     }
+
                     return
                 } else {
                     warningZuiMsg("页面出错！")
                 }
             })
+
     })
 
     // 发表评论
     function saveComment(articleId) {
-        let commentContext = $("#commentContext").val();
-        if (!checkNotNull(commentContext) || commentContext.length < 1) {
-            warningZuiMsg("请填写评论！")
-            return
-        }
-        $.post("/user/saveComment", {
-            commentContext: commentContext,
-            articleId: articleId
-        }, function (data) {
-            if (data.code == 200) {
-                successZuiMsg("评论成功！")
-                $("#commentContext").val("")
-                $('#commentsList').prepend(addCommentHtml(data.data.commentTime, data.data.userName, data.data.commentContext, data.data.commentId, data.data.commentGoodNums, data.data.isGood))
+        if (!checkNotNull(beRepliedCommentId)) {
+            let commentContext = $("#commentContext").val();
+            if (!checkNotNull(commentContext) || commentContext.length < 1) {
+                warningZuiMsg("请填写评论！")
                 return
-            } else {
-                warningZuiMsg(data.message)
             }
-        })
+            $.post("/user/saveComment", {
+                commentContext: commentContext,
+                articleId: articleId
+            }, function (data) {
+                if (data.code == 200) {
+                    successZuiMsg("评论成功！")
+                    $("#commentContext").val("")
+                    $('#commentsList').prepend(addCommentHtml(data.data.commentTime, data.data.userName, data.data.commentContext, data.data.commentId, data.data.commentGoodNums, data.data.isGood))
+                    return
+                } else {
+                    warningZuiMsg(data.message)
+                }
+            })
+        } else {
+            saveReplyComment()
+        }
+
     }
 
 
     // 添加评论html
     function addCommentHtml(commentTime, userName, commentContext, commentId, commentGoodNums, isGood) {
-        let comment = '<div class="comment" id=' + commentId + '>' +
+        let comment = '<div class="comment" >' +
             '<div class="content">' +
             '<div class="pull-right text-muted">' + commentTime + '</div>' +
             '<div><i class="icon icon-user"></i><strong>' + userName +
             '</strong></div>' +
             '<div class="text">' + '&emsp;&emsp;' + commentContext + '</div>' +
             '<div class="actions">' +
-            '<span onclick="recover(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep">回复</span>';
+            '<span onclick="recover(\'' + commentId + '\',1)"  class="palm img-thumbnail background-deep">回复</span>';
 
         if (isGood == 1) {
-            comment += '  <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
-            '</div>' +
-            '</div>' + '</div>'
+            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep goodClick"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
+                '</div>' +
+                '</div>' +
+                '<div class="comments-list" id=1' + commentId + '></div>'
+            '</div>'
         } else {
-            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>'
-            '</div>' +
-            '</div>' + '</div>'
+            comment += ' <span onclick="goodComment(this,\'' + commentId + '\')"  class="palm img-thumbnail background-deep"><i class="icon icon-thumbs-o-up"></i>点赞' + '&emsp;' + '<i class="icon icon-thumbs-o-up"></i>' + commentGoodNums + '</span>' +
+                '</div>' +
+                '</div>' +
+                '<div class="comments-list" id=1' + commentId + '></div>'
+            '</div>'
         }
 
         return comment;

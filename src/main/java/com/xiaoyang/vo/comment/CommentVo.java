@@ -1,11 +1,10 @@
 package com.xiaoyang.vo.comment;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @TableName comment
@@ -36,6 +35,9 @@ public class CommentVo implements Serializable {
 
     // 是否已经点赞过
     private Integer isGood;
+
+    // 回复评论
+    private List<ReplyCommentVo> replyCommentVos;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,19 +1,18 @@
 package com.xiaoyang.service.impl;
 
-import java.util.Date;
+import java.util.Objects;
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xiaoyang.dto.article.PublishArticleActionDTO;
-import com.xiaoyang.pojo.Article;
+import com.xiaoyang.mapper.CommentMapper;
+import com.xiaoyang.pojo.Comment;
 import com.xiaoyang.pojo.User;
-import com.xiaoyang.service.ArticleService;
-import com.xiaoyang.service.ArticleTagListService;
 import com.xiaoyang.service.UserService;
 import com.xiaoyang.mapper.UserMapper;
 import com.xiaoyang.utils.Result;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * @author xiaomei
@@ -24,7 +23,30 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
+    @Resource
+    private UserMapper userMapper;
 
+    @Resource
+    private CommentMapper commentMapper;
+
+    @Override
+    public Result getReplyPeople(String commentId) {
+        Comment comment = commentMapper.selectById(commentId);
+
+        if (Objects.isNull(comment)) {
+            return Result.failed("评论不存在");
+        }
+
+        String userId = comment.getUserId();
+        if (StrUtil.isBlank(userId)) {
+            return Result.failed("页面异常，请刷新重试！");
+        }
+        User user = userMapper.selectById(userId);
+        if (Objects.isNull(user)) {
+            return Result.failed("评论用户不存在");
+        }
+        return Result.OK(user);
+    }
 }
 
 

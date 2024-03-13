@@ -1,27 +1,21 @@
 package com.xiaoyang.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaoyang.pojo.Article;
-import com.xiaoyang.pojo.Comment;
-import com.xiaoyang.pojo.CommentReply;
 import com.xiaoyang.pojo.UserCollect;
 import com.xiaoyang.service.ArticleService;
 import com.xiaoyang.service.UserCollectService;
 import com.xiaoyang.mapper.UserCollectMapper;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.vo.article.UserCollectArticlePageVo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author xiaomei

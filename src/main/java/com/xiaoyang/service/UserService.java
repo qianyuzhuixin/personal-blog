@@ -1,6 +1,5 @@
 package com.xiaoyang.service;
 
-import com.xiaoyang.dto.article.PublishArticleActionDTO;
 import com.xiaoyang.pojo.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xiaoyang.utils.Result;
@@ -12,4 +11,5 @@ import com.xiaoyang.utils.Result;
  */
 public interface UserService extends IService<User> {
 
+    Result getReplyPeople(String commentId);
 }

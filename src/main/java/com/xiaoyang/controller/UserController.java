@@ -1,6 +1,5 @@
 package com.xiaoyang.controller;
 
-import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
@@ -10,9 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiaoyang.dto.article.PublishArticleActionDTO;
 import com.xiaoyang.dto.article.UserCollectDTO;
-import com.xiaoyang.dto.base.BasePageDto;
 import com.xiaoyang.dto.base.CommonPage;
-import com.xiaoyang.mapper.CommentMapper;
 import com.xiaoyang.pojo.*;
 import com.xiaoyang.service.*;
 import com.xiaoyang.utils.CommonUtils;
@@ -22,11 +19,13 @@ import com.xiaoyang.vo.article.ShowArticleVo;
 import com.xiaoyang.vo.article.UserArticlePageVo;
 import com.xiaoyang.vo.article.UserCollectArticlePageVo;
 import com.xiaoyang.vo.comment.CommentVo;
+import com.xiaoyang.vo.comment.ReplyCommentVo;
 import org.hibernate.validator.constraints.Length;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -75,7 +74,8 @@ public class UserController {
     @Autowired
     private CommentService commentService;
 
-    private Logger log;
+    @Autowired
+    private CommentReplyService commentReplyService;
 
 
     // 注册
@@ -317,7 +317,7 @@ public class UserController {
         return "/user/showArticle";
     }
 
-    // 接收用户评论
+    // 展示用户评论
     @PostMapping("showComment")
     @ResponseBody
     public Result showComment(String articleId, Integer pageNumber, HttpServletRequest request) {
@@ -331,6 +331,11 @@ public class UserController {
         IPage<CommentVo> commentVoIPage = commentService.showComment(commentVoPage, articleId);
         commentVoIPage.getRecords().stream().forEach(commentVo -> {
             commentVo.setUserName(CommonUtils.editMiddleStr(commentVo.getUserName()));
+            Result result = showRecoverComment(commentVo.getCommentId(), 1, request);
+            if (result.getCode() == 200) {
+                CommonPage<ReplyCommentVo> replyCommentVos = (CommonPage<ReplyCommentVo>) result.getData();
+                commentVo.setReplyCommentVos(replyCommentVos.getData());
+            }
         });
 
         HashMap<String, Long> goodCommentMap = (HashMap<String, Long>) request.getSession().getAttribute("goodCommentMap");
@@ -341,40 +346,42 @@ public class UserController {
                     commentVo.setIsGood(1);
                 }
             });
-
         }
 
         return Result.OK(CommonPage.restPage(commentVoIPage));
     }
 
-    // 接收用户评论
+    // 展示用户回复评论
     @PostMapping("showRecoverComment")
     @ResponseBody
-    public Result showRecoverComment(String articleId, Integer pageNumber, HttpServletRequest request) {
-        if (StrUtil.isBlank(articleId)) {
-            return Result.failed("未获取到文章id，请刷新页面重试！");
+    public Result showRecoverComment(String commentId, Integer pageNumber, HttpServletRequest request) {
+        if (StrUtil.isBlank(commentId)) {
+            return Result.failed("出现异常，请刷新页面重试！");
         }
         if (Objects.isNull(pageNumber) || pageNumber < 1) {
             pageNumber = 1;
         }
-        Page<CommentVo> commentVoPage = new Page<>(pageNumber, 5);
-        IPage<CommentVo> commentVoIPage = commentService.showComment(commentVoPage, articleId);
-        commentVoIPage.getRecords().stream().forEach(commentVo -> {
-            commentVo.setUserName(CommonUtils.editMiddleStr(commentVo.getUserName()));
+        Page<ReplyCommentVo> replyCommentVo = new Page<>(pageNumber, 5);
+        IPage<ReplyCommentVo> replyCommentVoIPage = commentService.showReplyComment(replyCommentVo, commentId);
+        // 根据评论id获取用户id及名称
+        User user = commentService.getUserInfoByCommentId(commentId);
+        replyCommentVoIPage.getRecords().stream().forEach(ReplyCommentVo -> {
+            ReplyCommentVo.setReplyUserName(CommonUtils.editMiddleStr(ReplyCommentVo.getReplyUserName()));
+            ReplyCommentVo.setBeRepliedUserId(user.getUserId());
+            ReplyCommentVo.setBeRepliedUserName(CommonUtils.editMiddleStr(user.getUserName()));
         });
 
-        HashMap<String, Long> goodCommentMap = (HashMap<String, Long>) request.getSession().getAttribute("goodCommentMap");
-        if (Objects.nonNull(goodCommentMap)) {
-            List<String> commentIds = new ArrayList<>(goodCommentMap.keySet());
-            commentVoIPage.getRecords().stream().forEach(commentVo -> {
-                if (commentIds.contains(commentVo.getCommentId())) {
-                    commentVo.setIsGood(1);
+        HashMap<String, Long> replyGoodCommentMap = (HashMap<String, Long>) request.getSession().getAttribute("replyGoodCommentMap");
+        if (Objects.nonNull(replyGoodCommentMap)) {
+            List<String> commentIds = new ArrayList<>(replyGoodCommentMap.keySet());
+            replyCommentVoIPage.getRecords().stream().forEach(ReplyCommentVo -> {
+                if (commentIds.contains(ReplyCommentVo.getReplyCommentId())) {
+                    ReplyCommentVo.setIsGood(1);
                 }
             });
 
         }
-
-        return Result.OK(CommonPage.restPage(commentVoIPage));
+        return Result.OK(CommonPage.restPage(replyCommentVoIPage));
     }
 
     // 删除文章
@@ -426,6 +433,82 @@ public class UserController {
         }
 
         return Result.failed("评论失败！");
+    }
+
+    // 添加回复评论
+    @PostMapping("saveReplyComment")
+    @ResponseBody
+    @Transactional
+    public Result saveReplyComment(String topLevelCommentId, String beRepliedCommentId, String commentContext, HttpServletRequest request) {
+        if (StrUtil.isBlank(commentContext) || StrUtil.isBlank(beRepliedCommentId)) {
+            return Result.failed("页面出现错误，请刷新重试！");
+        }
+        if (commentContext.length() < 1 || commentContext.length() > 800) {
+            return Result.failed("评论长度需在1~800之间！");
+        }
+        User user = (User) request.getSession().getAttribute("user");
+        if (Objects.isNull(user)) {
+            return Result.failed("登录已过期，请重新登录！");
+        }
+        Comment comment = commentService.getOne(Wrappers.<Comment>lambdaQuery()
+                .eq(Comment::getUserId, user.getUserId())
+                .select(Comment::getCommentTime)
+                .orderByDesc(Comment::getCommentTime), false);
+        if (Objects.nonNull(comment) && Objects.nonNull(comment.getCommentTime())) {
+            if ((comment.getCommentTime().getTime() + 8000) > System.currentTimeMillis()) {
+                return Result.failed("评论太快了，请稍后再试！");
+            }
+        }
+
+        comment = commentService.getById(topLevelCommentId);
+        Comment newComment = new Comment();
+        newComment.setArticleId(comment.getArticleId());
+        newComment.setUserId(user.getUserId());
+        newComment.setCommentContext(commentContext);
+        newComment.setCommentTime(DateUtil.date());
+        newComment.setCommentGoodNums(0);
+        if (topLevelCommentId.equals(beRepliedCommentId)) {
+            newComment.setCommentStatus(1);
+        } else {
+            newComment.setCommentStatus(2);
+        }
+
+        if (commentService.save(newComment)) {
+            CommentVo commentVo = new CommentVo();
+            BeanUtils.copyProperties(newComment, commentVo);
+            commentVo.setUserName(user.getUserName());
+            // 保存回复关系
+            CommentReply newCommentReply = new CommentReply();
+            newCommentReply.setTopLevelCommentId(topLevelCommentId);
+            newCommentReply.setCommentId(newComment.getCommentId());
+            newCommentReply.setBeRepliedCommentId(beRepliedCommentId);
+            if (commentReplyService.save(newCommentReply)) {
+                comment = commentService.getById(beRepliedCommentId);
+                ReplyCommentVo replyCommentVo = new ReplyCommentVo();
+                replyCommentVo.setTopLevelCommentId(topLevelCommentId);
+                replyCommentVo.setBeRepliedCommentId(beRepliedCommentId);
+                replyCommentVo.setReplyCommentId(newComment.getCommentId());
+                replyCommentVo.setReplyUserId(user.getUserId());
+                replyCommentVo.setBeRepliedUserId(comment.getUserId());
+                replyCommentVo.setReplyUserName(CommonUtils.editMiddleStr(user.getUserName()));
+                replyCommentVo.setBeRepliedUserName(CommonUtils.editMiddleStr(userService.getById(comment.getUserId()).getUserName()));
+                replyCommentVo.setCommentContext(newComment.getCommentContext());
+                replyCommentVo.setCommentTime(newComment.getCommentTime());
+                replyCommentVo.setCommentGoodNums(newComment.getCommentGoodNums());
+                return Result.OK(replyCommentVo);
+            }
+            return Result.failed("回复失败！");
+        }
+        return Result.failed("回复失败！");
+
+    }
+
+
+    // 获取被回复人信息
+    @PostMapping("getReplyPeople")
+    @ResponseBody
+    public Result getReplyPeople(String commentId) {
+        return userService.getReplyPeople(commentId);
     }
 
 }

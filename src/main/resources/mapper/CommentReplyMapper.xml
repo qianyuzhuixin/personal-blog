@@ -4,5 +4,36 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaoyang.mapper.CommentReplyMapper">
 
+    <resultMap id="BaseResultMap" type="com.xiaoyang.pojo.CommentReply">
+        <id property="commentReplyId" column="comment_reply_id" jdbcType="VARCHAR"/>
+        <result property="commentId" column="comment_id" jdbcType="VARCHAR"/>
+        <result property="beRepliedCommentId" column="be_replied_comment_id" jdbcType="VARCHAR"/>
+        <result property="topLevelCommentId" column="top_level_comment_id" jdbcType="VARCHAR"/>
+    </resultMap>
 
+    <sql id="Base_Column_List">
+        comment_reply_id
+        ,comment_id,be_replied_comment_id,
+        top_level_comment_id
+    </sql>
+    <select id="showReplyComment" resultType="com.xiaoyang.vo.comment.ReplyCommentVo">
+        select comr.top_level_comment_id,
+               comr.be_replied_comment_id,
+               comr.comment_id as reply_comment_id,
+               com.user_id     as reply_user_id,
+               com2.user_id    as be_reply_user_id,
+               u.user_name     as reply_user_name,
+               u2.user_name    as be_replied_user_name,
+               com.comment_context,
+               com.comment_good_nums,
+               com.comment_time,
+               com.comment_status
+        FROM comment_reply as comr
+                 LEFT JOIN `comment` as com ON com.comment_id = comr.comment_id
+                 LEFT JOIN `comment` as com2 ON com2.comment_id = comr.be_replied_comment_id
+                 LEFT JOIN `user` as u ON u.user_id = com.user_id
+                 LEFT JOIN `user` as u2 ON u2.user_id = com2.user_id
+        where comr.top_level_comment_id = #{commentId}
+        ORDER BY com.comment_time DESC
+    </select>
 </mapper>
