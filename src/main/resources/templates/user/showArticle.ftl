@@ -269,6 +269,7 @@
                     let replyCommentVos = data.data.data;
                     replyTotalPage = data.data.totalPages;
                     replyPageNumber = data.data.currentPage;
+                    console.log(replyCommentVos)
                     if (replyTotalPage > replyPageNumber) {
                         $('#10' + commentId).show();
                     }

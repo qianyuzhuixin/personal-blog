@@ -371,7 +371,7 @@ public class UserController {
             ReplyCommentVo.setBeRepliedUserName(CommonUtils.editMiddleStr(user.getUserName()));
         });
 
-        HashMap<String, Long> replyGoodCommentMap = (HashMap<String, Long>) request.getSession().getAttribute("replyGoodCommentMap");
+        HashMap<String, Long> replyGoodCommentMap = (HashMap<String, Long>) request.getSession().getAttribute("goodCommentMap");
         if (Objects.nonNull(replyGoodCommentMap)) {
             List<String> commentIds = new ArrayList<>(replyGoodCommentMap.keySet());
             replyCommentVoIPage.getRecords().stream().forEach(ReplyCommentVo -> {

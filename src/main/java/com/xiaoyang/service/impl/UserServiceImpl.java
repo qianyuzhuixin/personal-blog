@@ -9,6 +9,7 @@ import com.xiaoyang.pojo.Comment;
 import com.xiaoyang.pojo.User;
 import com.xiaoyang.service.UserService;
 import com.xiaoyang.mapper.UserMapper;
+import com.xiaoyang.utils.CommonUtils;
 import com.xiaoyang.utils.Result;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (Objects.isNull(user)) {
             return Result.failed("评论用户不存在");
         }
+        user.setUserName(CommonUtils.editMiddleStr(user.getUserName()));
         return Result.OK(user);
     }
 }
