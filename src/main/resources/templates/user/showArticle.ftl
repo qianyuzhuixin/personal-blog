@@ -269,10 +269,15 @@
                     let replyCommentVos = data.data.data;
                     replyTotalPage = data.data.totalPages;
                     replyPageNumber = data.data.currentPage;
-                    console.log(replyCommentVos)
+                    console.log(data.data)
+                    console.log(replyTotalPage)
+                    console.log(replyPageNumber)
                     if (replyTotalPage > replyPageNumber) {
                         $('#10' + commentId).show();
+                    } else {
+                        $('#10' + commentId).hide();
                     }
+                    $('#10' + commentId).hide();
                     for (let j = 0; j < replyCommentVos.length; j++) {
                         $('#1' + commentId)
                             .append(addRecoverHtml(
@@ -322,7 +327,6 @@
 
     // 展示评论
     function showComment(articleId) {
-        $('#moreComment').hide();
         $.post("/user/showComment",
             {
                 articleId: articleId,
@@ -334,6 +338,8 @@
                     pageNumber = data.data.currentPage;
                     if (totalPage > pageNumber) {
                         $('#moreComment').show();
+                    } else {
+                        $('#moreComment').hide();
                     }
                     for (let i = 0; i < commentList.length; i++) {
                         $('#commentsList').append(addCommentHtml(commentList[i].commentTime, commentList[i].userName, commentList[i].commentContext, commentList[i].commentId, commentList[i].commentGoodNums, commentList[i].idGood))
@@ -439,7 +445,7 @@
             '</div>' +
             '<div class="comments-list" id=1' + commentId + '></div>' +
             '<span id=10"' + commentId + '" class="palm moreComment pull-right " ' +
-            'onclick="showReplyComment(\'' + commentId + '\')">更多评论' +
+            'onclick="showReplyComment(\'' + commentId + '\')">更多回复' +
             '<i class="icon icon-double-angle-down"></i>' +
             '</span>' +
             '</div>'
