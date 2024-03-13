@@ -259,7 +259,6 @@
 
     // 展示回复评论
     function showReplyComment(commentId) {
-        $('#10' + commentId).hide();
         $.post("/user/showRecoverComment",
             {
                 commentId: commentId,
@@ -269,15 +268,11 @@
                     let replyCommentVos = data.data.data;
                     replyTotalPage = data.data.totalPages;
                     replyPageNumber = data.data.currentPage;
-                    console.log(data.data)
-                    console.log(replyTotalPage)
-                    console.log(replyPageNumber)
                     if (replyTotalPage > replyPageNumber) {
                         $('#10' + commentId).show();
                     } else {
                         $('#10' + commentId).hide();
                     }
-                    $('#10' + commentId).hide();
                     for (let j = 0; j < replyCommentVos.length; j++) {
                         $('#1' + commentId)
                             .append(addRecoverHtml(
@@ -343,6 +338,9 @@
                     }
                     for (let i = 0; i < commentList.length; i++) {
                         $('#commentsList').append(addCommentHtml(commentList[i].commentTime, commentList[i].userName, commentList[i].commentContext, commentList[i].commentId, commentList[i].commentGoodNums, commentList[i].idGood))
+                        if (commentList[i].replyCommentVos.length < 5) {
+                            $('#10' + commentList[i].commentId).hide()
+                        }
                     }
                     return
                 } else {
@@ -376,6 +374,9 @@
                                 commentList[i].commentGoodNums,
                                 commentList[i].isGood))
                         let replyCommentVos = commentList[i].replyCommentVos;
+                        if (replyCommentVos.length < 5) {
+                            $('#10' + commentList[i].commentId).hide()
+                        }
                         for (let j = 0; j < replyCommentVos.length; j++) {
                             $('#1' + replyCommentVos[j].topLevelCommentId)
                                 .append(addRecoverHtml(
@@ -444,7 +445,7 @@
         comment += '</div>' +
             '</div>' +
             '<div class="comments-list" id=1' + commentId + '></div>' +
-            '<span id=10"' + commentId + '" class="palm moreComment pull-right " ' +
+            '<span id="10' + commentId + '" class="palm moreComment pull-right " ' +
             'onclick="showReplyComment(\'' + commentId + '\')">更多回复' +
             '<i class="icon icon-double-angle-down"></i>' +
             '</span>' +
