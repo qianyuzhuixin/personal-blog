@@ -254,6 +254,43 @@
         return comment;
     }
 
+    let replyTotalPage = 0
+    let replyPageNumber = 1
+
+    // 展示回复评论
+    function showReplyComment(commentId) {
+        $('#10' + commentId).hide();
+        $.post("/user/showRecoverComment",
+            {
+                commentId: commentId,
+                pageNumber: ++replyPageNumber
+            }, function (data) {
+                if (data.code == 200) {
+                    let replyCommentVos = data.data.data;
+                    replyTotalPage = data.data.totalPages;
+                    replyPageNumber = data.data.currentPage;
+                    if (replyTotalPage > replyPageNumber) {
+                        $('#10' + commentId).show();
+                    }
+                    for (let j = 0; j < replyCommentVos.length; j++) {
+                        $('#1' + commentId)
+                            .append(addRecoverHtml(
+                                replyCommentVos[j].commentTime,
+                                replyCommentVos[j].replyUserName,
+                                replyCommentVos[j].beRepliedUserName,
+                                replyCommentVos[j].commentContext,
+                                replyCommentVos[j].replyCommentId,
+                                replyCommentVos[j].commentGoodNums,
+                                replyCommentVos[j].isGood,
+                                replyCommentVos[j].commentStatus))
+                    }
+                    return
+                } else {
+                    warningZuiMsg("页面出错！")
+                }
+            })
+    }
+
 
     // 评论点赞
     function goodComment(obj, commentId) {
@@ -400,7 +437,7 @@
         comment += '</div>' +
             '</div>' +
             '<div class="comments-list" id=1' + commentId + '></div>' +
-            '<span  class="palm moreComment pull-right moreComment" ' +
+            '<span id=10"' + commentId + '" class="palm moreComment pull-right " ' +
             'onclick="showReplyComment(\'' + commentId + '\')">更多评论' +
             '<i class="icon icon-double-angle-down"></i>' +
             '</span>' +
