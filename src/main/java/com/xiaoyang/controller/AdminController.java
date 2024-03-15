@@ -19,6 +19,7 @@ import com.xiaoyang.dto.user.UserListPageDto;
 import com.xiaoyang.pojo.*;
 import com.xiaoyang.service.*;
 import com.xiaoyang.dto.base.CommonPage;
+import com.xiaoyang.utils.RedisCache;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.utils.ResultCodeEnum;
 import com.xiaoyang.vo.ad.AdVo;
@@ -26,6 +27,7 @@ import com.xiaoyang.vo.article.AdminArticlePageVo;
 import com.xiaoyang.vo.article.ArticleTypeVo;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -82,6 +84,10 @@ public class AdminController {
 
     @Resource
     private ServletContext servletContext;
+
+
+    @Autowired
+    private RedisCache redisCache;
 
     // 中间跳转
     @GetMapping("login")
@@ -249,7 +255,7 @@ public class AdminController {
         if (!save) {
             return Result.build(null, ResultCodeEnum.INSERT_ERROR);
         }
-        servletContext.removeAttribute("articleTypeHomeTreeVoList");
+        redisCache.deleteObject("articleTypeHomeTreeVoList");
         return Result.OK("添加成功!");
     }
 
@@ -269,7 +275,7 @@ public class AdminController {
         if (!updateById) {
             return Result.build(null, ResultCodeEnum.UPDATE_ERROR);
         }
-        servletContext.removeAttribute("articleTypeHomeTreeVoList");
+        redisCache.deleteObject("articleTypeHomeTreeVoList");
         return Result.OK("更新成功！");
     }
 
@@ -286,7 +292,7 @@ public class AdminController {
         if (!removeById) {
             return Result.build(null, ResultCodeEnum.DEL_ERROR);
         }
-        servletContext.removeAttribute("articleTypeHomeTreeVoList");
+        redisCache.deleteObject("articleTypeHomeTreeVoList");
         if (articleType.getArticleTypeLevel() == 1) {
             LambdaUpdateWrapper<ArticleType> wrapper = new LambdaUpdateWrapper<>();
             wrapper.set(ArticleType::getArticleTypeParentId, null);
@@ -313,7 +319,7 @@ public class AdminController {
         String articleTagId = articleTag.getArticleTagId();
         if (StrUtil.isNotBlank(articleTagId)) {
             if (articleTagService.updateById(articleTag)) {
-                servletContext.removeAttribute("articleTagList");
+                redisCache.deleteObject("articleTagList");
                 return Result.OK("更新成功！");
             }
             return Result.build(null, ResultCodeEnum.UPDATE_ERROR);
@@ -321,7 +327,7 @@ public class AdminController {
 
         articleTag.setArticleTagAddTime(DateUtil.date());
         if (articleTagService.save(articleTag)) {
-            servletContext.removeAttribute("articleTagList");
+            redisCache.deleteObject("articleTagList");
             return Result.OK("添加成功！");
         }
         return Result.build(null, ResultCodeEnum.INSERT_ERROR);
@@ -339,7 +345,7 @@ public class AdminController {
             return Result.build(null, ResultCodeEnum.DEL_CASCADE_ERROR);
         }
         if (articleTagService.removeById(articleTagId)) {
-            servletContext.removeAttribute("articleTagList");
+            redisCache.deleteObject("articleTagList");
             return Result.OK("删除成功！");
         }
         return Result.build(null, ResultCodeEnum.DEL_ERROR);
@@ -385,14 +391,14 @@ public class AdminController {
             // 添加友情链接
             link.setLinkAddTime(DateUtil.date());
             if (linkService.save(link)) {
-                servletContext.removeAttribute("linkList");
+                redisCache.deleteObject("linkList");
                 return Result.OK("添加成功！");
             }
             return Result.build(null, ResultCodeEnum.INSERT_ERROR);
         }
 
         if (linkService.updateById(link)) {
-            servletContext.removeAttribute("linkList");
+            redisCache.deleteObject("linkList");
             return Result.OK("更新成功！");
         }
         return Result.build(null, ResultCodeEnum.UPDATE_ERROR);
@@ -403,7 +409,7 @@ public class AdminController {
     @ResponseBody
     public Result delLink(String linkId) {
         if (linkService.removeById(linkId)) {
-            servletContext.removeAttribute("linkList");
+            redisCache.deleteObject("linkList");
             return Result.OK("删除成功！");
         }
         return Result.build(null, ResultCodeEnum.DEL_ERROR);
@@ -446,7 +452,7 @@ public class AdminController {
     @PostMapping("addOrUpdateAd")
     @ResponseBody
     public Result addOrUpdateAd(HttpServletRequest request, Ad ad) {
-        request.removeAttribute("adHomeList");
+        redisCache.deleteObject("adHomeList");
         if (StrUtil.isBlank(ad.getAdId())) {
             ad.setAdAddTime(DateUtil.date());
             if (adService.save(ad)) {

@@ -128,7 +128,7 @@
                                   onclick="articleListByTagId('${tag.articleTagId!}')">${tag.articleTagName!}</span>
                         </#list>
                     <#else >
-                        <div style="text-align: center">
+                        <div style="text-align: center;margin-right: 40%">
                             <h3><i class="icon icon-coffee"></i></h3>
                             <h3>暂无数据</h3>
                         </div>
@@ -270,7 +270,6 @@
     .tags span {
         margin: 10px;
         height: 20px;
-        display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 10px;

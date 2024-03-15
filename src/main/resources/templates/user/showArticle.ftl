@@ -208,7 +208,7 @@
             if (data.code == 200) {
                 successZuiMsg("评论成功！")
                 $("#commentContext").val("")
-                $('#1' + beRepliedCommentId)
+                $('#1' + topLevelCommentId)
                     .prepend(addRecoverHtml(
                         data.data.commentTime,
                         data.data.replyUserName,

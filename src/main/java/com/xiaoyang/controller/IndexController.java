@@ -3,7 +3,6 @@ package com.xiaoyang.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.tokenizer.engine.word.WordWord;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -15,6 +14,7 @@ import com.xiaoyang.dto.base.CommonPage;
 import com.xiaoyang.pojo.*;
 import com.xiaoyang.service.*;
 import com.xiaoyang.utils.CommonUtils;
+import com.xiaoyang.utils.RedisCache;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.vo.article.ArticleTypeHomeTreeVo;
 import com.xiaoyang.vo.article.IndexArticleVo;
@@ -67,6 +67,9 @@ public class IndexController {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private RedisCache redisCache;
+
 
     // 联系页面跳转
     @GetMapping("contact")
@@ -84,35 +87,45 @@ public class IndexController {
     // 首页数据加载
     @GetMapping("")
     public String index(HttpServletRequest request) {
-        ServletContext servletContext = request.getServletContext();
 
         // 获取文章类型
-        List<ArticleTypeHomeTreeVo> articleTypeHomeTreeVoList = (List<ArticleTypeHomeTreeVo>) servletContext.getAttribute("articleTypeHomeTreeVoList");
+        List<ArticleTypeHomeTreeVo> articleTypeHomeTreeVoList = redisCache.getCacheList("articleTypeHomeTreeVoList");
         if (CollUtil.isEmpty(articleTypeHomeTreeVoList)) {
             articleTypeHomeTreeVoList = articleTypeService.getArticleTypeHomeTree();
-            servletContext.setAttribute("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
+            if (CollUtil.isNotEmpty(articleTypeHomeTreeVoList)) {
+                redisCache.setCacheList("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
+            }
         }
+        request.setAttribute("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
 
         // 获取热门文章
-        List<Article> articleHotVoList = (List<Article>) servletContext.getAttribute("articleHotVoList");
+        List<Article> articleHotVoList = redisCache.getCacheList("articleHotVoList");
         if (CollUtil.isEmpty(articleHotVoList)) {
             articleHotVoList = articleService.list(Wrappers.<Article>lambdaQuery()
                     .eq(Article::getArticleIsHot, 1)
                     .select(Article::getArticleId, Article::getArticleTitle)
                     .last("limit 5"));
-            servletContext.setAttribute("articleHotVoList", articleHotVoList);
+
+            if (CollUtil.isNotEmpty(articleHotVoList)) {
+                redisCache.setCacheList("articleHotVoList", articleHotVoList);
+            }
         }
+        request.setAttribute("articleHotVoList", articleHotVoList);
 
         // 获取热门标签
-        List<ArticleTag> articleTagList = (List<ArticleTag>) servletContext.getAttribute("articleTagList");
+        List<ArticleTag> articleTagList = redisCache.getCacheList("articleTagList");
         if (CollUtil.isEmpty(articleTagList)) {
             articleTagList = articleTagService.list(Wrappers.<ArticleTag>lambdaQuery()
                     .select(ArticleTag::getArticleTagId, ArticleTag::getArticleTagName));
-            servletContext.setAttribute("articleTagList", articleTagList);
+            // 设置到Redis缓存中
+            if (CollUtil.isNotEmpty(articleTagList)) {
+                redisCache.setCacheList("articleTagList", articleTagList);
+            }
         }
+        request.setAttribute("articleTagList", articleTagList);
 
         // 获取首页广告
-        List<Ad> adHomeList = (List<Ad>) servletContext.getAttribute("adHomeList");
+        List<Ad> adHomeList = redisCache.getCacheList("adHomeList");
         if (CollUtil.isEmpty(adHomeList)) {
             AdType homeAd = adTypeService.getOne(Wrappers.<AdType>lambdaQuery()
                     .eq(AdType::getAdTypeTag, "homeAd")
@@ -125,25 +138,37 @@ public class IndexController {
                         .gt(Ad::getAdEndTime, date)
                         .select(Ad::getAdId, Ad::getAdImgUrl, Ad::getAdLinkUrl, Ad::getAdTitle)
                         .orderByAsc(Ad::getAdSort));
-                servletContext.setAttribute("adHomeList", adHomeList);
+                // 设置到Redis缓存中
+                if (CollUtil.isNotEmpty(adHomeList)) {
+                    redisCache.setCacheList("adHomeList", adHomeList);
+                }
             }
         }
+        request.setAttribute("adHomeList", adHomeList);
 
         // 获取最新文章
-        List<IndexArticleVo> articleIndexList = (List<IndexArticleVo>) servletContext.getAttribute("articleIndexList");
+        List<IndexArticleVo> articleIndexList = redisCache.getCacheList("articleIndexList");
         if (CollUtil.isEmpty(articleIndexList)) {
             articleIndexList = articleService.getArticleIndexList();
-            servletContext.setAttribute("articleIndexList", articleIndexList);
+            // 设置到Redis缓存中
+            if (CollUtil.isNotEmpty(articleIndexList)) {
+                redisCache.setCacheList("articleIndexList", articleIndexList);
+            }
         }
+        request.setAttribute("articleIndexList", articleIndexList);
 
 
         // 获取友联
-        List<Link> linkList = (List<Link>) servletContext.getAttribute("linkList");
+        List<Link> linkList = redisCache.getCacheList("linkList");
         if (CollUtil.isEmpty(linkList)) {
             linkList = linkService.list(Wrappers.<Link>lambdaQuery()
                     .orderByAsc(Link::getLinkSort));
-            servletContext.setAttribute("linkList", linkList);
+            // 设置到Redis缓存中
+            if (CollUtil.isNotEmpty(linkList)) {
+                redisCache.setCacheList("linkList", linkList);
+            }
         }
+        request.setAttribute("linkList", linkList);
 
         return "/index";
     }
