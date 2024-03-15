@@ -214,6 +214,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(ArticleTagList::getArticleTagId, articleListByTagPageDTO.getArticleTagId())
                 .select(ArticleTagList::getArticleId));
         List<String> articleIds = articleTagLists.stream().map(ArticleTagList::getArticleId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(articleIds)) {
+            return new Page<>();
+        }
         // 根据文章id获取文章列表
         List<Article> articleList = articleMapper.selectBatchIds(articleIds);
         // 按发布日期降序排序

@@ -12,6 +12,7 @@ import com.xiaoyang.dto.article.ArticleListDTO;
 import com.xiaoyang.dto.article.ArticleTopSearchPageDTO;
 import com.xiaoyang.dto.base.CommonPage;
 import com.xiaoyang.pojo.*;
+import com.xiaoyang.scheduled.ScheduledTasks;
 import com.xiaoyang.service.*;
 import com.xiaoyang.utils.CommonUtils;
 import com.xiaoyang.utils.RedisCache;
@@ -29,6 +30,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,7 +89,7 @@ public class IndexController {
     // 首页数据加载
     @GetMapping("")
     public String index(HttpServletRequest request) {
-
+        HttpSession session = request.getSession();
         // 获取文章类型
         List<ArticleTypeHomeTreeVo> articleTypeHomeTreeVoList = redisCache.getCacheList("articleTypeHomeTreeVoList");
         if (CollUtil.isEmpty(articleTypeHomeTreeVoList)) {
@@ -96,21 +98,30 @@ public class IndexController {
                 redisCache.setCacheList("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
             }
         }
-        request.setAttribute("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
+        session.setAttribute("articleTypeHomeTreeVoList", articleTypeHomeTreeVoList);
 
-        // 获取热门文章
-        List<Article> articleHotVoList = redisCache.getCacheList("articleHotVoList");
-        if (CollUtil.isEmpty(articleHotVoList)) {
+        // 获取热门文章(定时任务中根据访问量更新,其数量为常量HOT_ARTICLE_LIST_NUMBER)
+        List<String> hotArticleIdList = redisCache.getCacheList("hotArticleIdList");
+        List<Article> articleHotVoList = new ArrayList<>();
+        if (CollUtil.isEmpty(hotArticleIdList) || hotArticleIdList.size() < 0) {
+            String sql = "limit " + ScheduledTasks.HOT_ARTICLE_LIST_NUMBER;
             articleHotVoList = articleService.list(Wrappers.<Article>lambdaQuery()
-                    .eq(Article::getArticleIsHot, 1)
                     .select(Article::getArticleId, Article::getArticleTitle)
-                    .last("limit 5"));
-
+                    .orderByDesc(Article::getArticleLookNums)
+                    .last(sql));
             if (CollUtil.isNotEmpty(articleHotVoList)) {
                 redisCache.setCacheList("articleHotVoList", articleHotVoList);
             }
+        } else {
+            for (String id : hotArticleIdList) {
+                Article article = articleService.getOne(Wrappers.<Article>lambdaQuery()
+                        .eq(Article::getArticleId, id)
+                        .select(Article::getArticleId, Article::getArticleTitle));
+                articleHotVoList.add(article);
+            }
         }
-        request.setAttribute("articleHotVoList", articleHotVoList);
+        redisCache.setCacheList("articleHotVoList", articleHotVoList);
+        session.setAttribute("articleHotVoList", articleHotVoList);
 
         // 获取热门标签
         List<ArticleTag> articleTagList = redisCache.getCacheList("articleTagList");
@@ -122,7 +133,7 @@ public class IndexController {
                 redisCache.setCacheList("articleTagList", articleTagList);
             }
         }
-        request.setAttribute("articleTagList", articleTagList);
+        session.setAttribute("articleTagList", articleTagList);
 
         // 获取首页广告
         List<Ad> adHomeList = redisCache.getCacheList("adHomeList");
@@ -144,7 +155,7 @@ public class IndexController {
                 }
             }
         }
-        request.setAttribute("adHomeList", adHomeList);
+        session.setAttribute("adHomeList", adHomeList);
 
         // 获取最新文章
         List<IndexArticleVo> articleIndexList = redisCache.getCacheList("articleIndexList");
@@ -155,7 +166,7 @@ public class IndexController {
                 redisCache.setCacheList("articleIndexList", articleIndexList);
             }
         }
-        request.setAttribute("articleIndexList", articleIndexList);
+        session.setAttribute("articleIndexList", articleIndexList);
 
 
         // 获取友联
@@ -168,7 +179,7 @@ public class IndexController {
                 redisCache.setCacheList("linkList", linkList);
             }
         }
-        request.setAttribute("linkList", linkList);
+        session.setAttribute("linkList", linkList);
 
         return "/index";
     }
@@ -221,6 +232,15 @@ public class IndexController {
         if (update) {
             // 更新session
             session.setAttribute("goodAdd", true);
+            // 统计同一个文章在一段时间内点赞数量（用于判断是否为热门文章）
+            Map<String, Integer> articleGoodNumsInScheduledTime = redisCache.getCacheMap("articleGoodNumsInScheduledTime");
+            Integer num = 0;
+            if (CollUtil.isNotEmpty(articleGoodNumsInScheduledTime)) {
+                num = articleGoodNumsInScheduledTime.get(articleId);
+            }
+            articleGoodNumsInScheduledTime = new HashMap<>();
+            articleGoodNumsInScheduledTime.put(articleId, ++num);
+            redisCache.setCacheMap("articleGoodNumsInScheduledTime", articleGoodNumsInScheduledTime);
             return Result.OK("点赞成功！");
         }
         // 更新失败
@@ -256,6 +276,15 @@ public class IndexController {
         if (!articleService.updateById(article)) {
             return Result.failed("收藏失败！");
         }
+        // 统计同一个文章在一段时间内收藏数量（用于判断是否为热门文章）
+        Map<String, Integer> articleCollectNumsInScheduledTime = redisCache.getCacheMap("articleCollectNumsInScheduledTime");
+        Integer num = 0;
+        if (CollUtil.isNotEmpty(articleCollectNumsInScheduledTime)) {
+            num = articleCollectNumsInScheduledTime.get(articleId);
+        }
+        articleCollectNumsInScheduledTime = new HashMap<>();
+        articleCollectNumsInScheduledTime.put(articleId, ++num);
+        redisCache.setCacheMap("articleCollectNumsInScheduledTime", articleCollectNumsInScheduledTime);
         return Result.OK("收藏成功！");
     }
 

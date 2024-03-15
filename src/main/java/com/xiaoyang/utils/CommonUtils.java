@@ -1,6 +1,7 @@
 package com.xiaoyang.utils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * @Description: 工具类
@@ -9,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class CommonUtils {
 
-    // 将用户名所有中间字符改为*
+    // 将字符串所有中间字符改为*
     public static String editMiddleStr(String str) {
         char[] chars = str.toCharArray();
         int len = chars.length;
@@ -38,5 +39,21 @@ public class CommonUtils {
             ip = request.getRemoteAddr();
         }
         return ip;
+    }
+
+    //将map<String,Integer>按Integer大小排序并获取到key
+    public static List<String> sortMapByValue(Map<String, Integer> map) {
+        List<Map.Entry<String, Integer>> list = new LinkedList<>(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : list) {
+            result.add(entry.getKey());
+        }
+        return result;
     }
 }

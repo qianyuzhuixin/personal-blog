@@ -82,10 +82,6 @@ public class AdminController {
     private AdminService adminService;
 
 
-    @Resource
-    private ServletContext servletContext;
-
-
     @Autowired
     private RedisCache redisCache;
 
