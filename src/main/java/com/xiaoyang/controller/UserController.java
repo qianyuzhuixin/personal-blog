@@ -7,7 +7,7 @@ import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xiaoyang.aop.LogAnnotation;
+import com.xiaoyang.annotation.LogAnnotation;
 import com.xiaoyang.dto.article.PublishArticleActionDTO;
 import com.xiaoyang.dto.article.UserCollectDTO;
 import com.xiaoyang.dto.base.CommonPage;

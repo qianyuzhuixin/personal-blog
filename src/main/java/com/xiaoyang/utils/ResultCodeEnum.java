@@ -1,6 +1,5 @@
 package com.xiaoyang.utils;
 
-import lombok.Data;
 
 /**
  * @Description:

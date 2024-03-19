@@ -1,4 +1,4 @@
-package com.xiaoyang.aop;
+package com.xiaoyang.annotation;
 
 import java.lang.annotation.*;
 

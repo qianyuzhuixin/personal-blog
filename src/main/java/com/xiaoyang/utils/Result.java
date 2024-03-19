@@ -3,8 +3,6 @@ package com.xiaoyang.utils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * @Description: 返回结果
  * @Author: xiaomei

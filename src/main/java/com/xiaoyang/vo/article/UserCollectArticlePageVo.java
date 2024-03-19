@@ -1,6 +1,5 @@
 package com.xiaoyang.vo.article;
 
-import com.xiaoyang.pojo.Article;
 import lombok.Data;
 
 import java.util.Date;

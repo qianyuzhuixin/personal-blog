@@ -1,7 +1,7 @@
 package com.xiaoyang.aop;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.xiaoyang.annotation.LogAnnotation;
 import com.xiaoyang.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 日志aop
@@ -28,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LogAspect {
 
-    @Pointcut("@annotation(com.xiaoyang.aop.LogAnnotation)")
+    @Pointcut("@annotation(com.xiaoyang.annotation.LogAnnotation)")
     public void logPointcut() {
     }
 

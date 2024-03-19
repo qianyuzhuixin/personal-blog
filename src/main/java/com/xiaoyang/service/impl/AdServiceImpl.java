@@ -5,7 +5,6 @@ import com.xiaoyang.pojo.Ad;
 import com.xiaoyang.service.AdService;
 import com.xiaoyang.mapper.AdMapper;
 import com.xiaoyang.vo.ad.AdVo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

@@ -1,9 +1,7 @@
 package com.xiaoyang.controller;
 
-import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
-import cn.hutool.captcha.LineCaptcha;
-import com.xiaoyang.aop.LogAnnotation;
+import com.xiaoyang.annotation.LogAnnotation;
 import com.xiaoyang.utils.Captcha;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

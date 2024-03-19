@@ -2,7 +2,6 @@ package com.xiaoyang.utils;
 
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
-import cn.hutool.captcha.LineCaptcha;
 
 import javax.servlet.http.HttpServletRequest;
 

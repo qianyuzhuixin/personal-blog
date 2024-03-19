@@ -1,10 +1,8 @@
 package com.xiaoyang.dto.user;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
 
 /**
  * @Description: 用户校验

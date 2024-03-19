@@ -7,18 +7,12 @@ import com.xiaoyang.pojo.UploadFile;
 import com.xiaoyang.service.UploadFileService;
 import com.xiaoyang.mapper.UploadFileMapper;
 import com.xiaoyang.utils.AliyunOSSUtils;
-import com.xiaoyang.utils.CommonUtils;
-import com.xiaoyang.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author xiaomei

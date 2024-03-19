@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xiaoyang.aop.LogAnnotation;
+import com.xiaoyang.annotation.LogAnnotation;
 import com.xiaoyang.dto.article.AddArticleTypeDTO;
 import com.xiaoyang.dto.article.ArticlePageDTO;
 import com.xiaoyang.dto.article.UpdateArticleTypeDTO;
@@ -35,7 +35,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
