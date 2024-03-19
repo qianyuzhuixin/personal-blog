@@ -288,14 +288,13 @@ public class AdminController {
         if (!removeById) {
             return Result.build(null, ResultCodeEnum.DEL_ERROR);
         }
-        redisCache.deleteObject("articleTypeHomeTreeVoList");
         if (articleType.getArticleTypeLevel() == 1) {
             LambdaUpdateWrapper<ArticleType> wrapper = new LambdaUpdateWrapper<>();
             wrapper.set(ArticleType::getArticleTypeParentId, null);
             wrapper.eq(ArticleType::getArticleTypeParentId, articleTypeId);
             articleTypeService.update(wrapper);
         }
-
+        redisCache.deleteObject("articleTypeHomeTreeVoList");
         return Result.OK("删除成功！");
     }
 
@@ -431,6 +430,7 @@ public class AdminController {
         if (StrUtil.isBlank(adType.getAdTypeId())) {
             adType.setAdTypeAddTime(DateUtil.date());
             if (adTypeService.save(adType)) {
+                redisCache.deleteObject("adHomeList");
                 return Result.OK("添加成功！");
             }
             return Result.build(null, ResultCodeEnum.INSERT_ERROR);
@@ -438,6 +438,7 @@ public class AdminController {
 
         // 修改广告类型
         if (adTypeService.updateById(adType)) {
+            redisCache.deleteObject("adHomeList");
             return Result.OK("修改成功！");
         }
         return Result.build(null, ResultCodeEnum.UPDATE_ERROR);
@@ -447,11 +448,11 @@ public class AdminController {
     // 添加或更新广告
     @PostMapping("addOrUpdateAd")
     @ResponseBody
-    public Result addOrUpdateAd(HttpServletRequest request, Ad ad) {
-        redisCache.deleteObject("adHomeList");
+    public Result addOrUpdateAd(Ad ad) {
         if (StrUtil.isBlank(ad.getAdId())) {
             ad.setAdAddTime(DateUtil.date());
             if (adService.save(ad)) {
+                redisCache.deleteObject("adHomeList");
                 return Result.OK("添加成功！");
             }
             return Result.build(null, ResultCodeEnum.INSERT_ERROR);
@@ -460,6 +461,7 @@ public class AdminController {
 
         // 修改广告类型
         if (adService.updateById(ad)) {
+            redisCache.deleteObject("adHomeList");
             return Result.OK("更新成功！");
         }
         return Result.build(null, ResultCodeEnum.UPDATE_ERROR);
@@ -470,6 +472,7 @@ public class AdminController {
     @ResponseBody
     public Result delAd(String adId) {
         if (adService.removeById(adId)) {
+            redisCache.deleteObject("adHomeList");
             return Result.OK("删除成功！");
         }
         return Result.build(null, ResultCodeEnum.DEL_ERROR);

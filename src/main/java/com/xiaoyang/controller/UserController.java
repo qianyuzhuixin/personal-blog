@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -228,7 +229,7 @@ public class UserController {
     // 编写文章时上传图片
     @PostMapping("uploadArticle")
     @ResponseBody
-    public String uploadArticle(HttpServletRequest request, MultipartFile file) {
+    public String uploadArticle(HttpServletRequest request, MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             return null;
         }
@@ -244,7 +245,7 @@ public class UserController {
     // 获取编写文章的内容
     @PostMapping("publishArticleAction")
     @ResponseBody
-    public Result publishArticleAction(@Valid PublishArticleActionDTO publishArticleActionDTO, HttpServletRequest request, MultipartFile articleCoverFile) {
+    public Result publishArticleAction(@Valid PublishArticleActionDTO publishArticleActionDTO, HttpServletRequest request, MultipartFile articleCoverFile) throws IOException {
 
         User user = (User) request.getSession().getAttribute("user");
         // 如果没有写作权限就跳转到首页

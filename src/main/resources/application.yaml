@@ -39,6 +39,21 @@ spring:
         max-idle: 5 # 连接池最大空闲连接数
         min-idle: 0 # 连接池最小空闲连接数
 
+#阿里云相关配置
+#用于Windows和linux中盘符切换
+file.separator: \
+#阿里云OSS
+aliyun:
+  oss:
+    #地域--越近访问越快
+    endpoint: "oss-cn-guangzhou.aliyuncs.com"
+    #阿里云主账号AccessKey拥有所有API的访问权限
+    accessKeyId: "LTAI5t6w3aKPb7fSzbCac6sE"
+    accessKeySecret: "s0CuzihItV8Ye5EiPCyZIqasSaXtcM"
+    #存储空间
+    bucketName: "cjr-sport-system"
+    #阿里云访问目录(oss中的文件夹名称)
+    rootPath: "cbyblog/"
 
 
 mybatis-plus:

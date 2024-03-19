@@ -4,6 +4,8 @@ import com.xiaoyang.pojo.UploadFile;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 /**
  * @author xiaomei
  * @description 针对表【upload_file(上传文件列表)】的数据库操作Service
@@ -11,5 +13,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UploadFileService extends IService<UploadFile> {
 
-    String getUploadUrl(MultipartFile file);
+    String getUploadUrl(MultipartFile file) throws IOException;
 }

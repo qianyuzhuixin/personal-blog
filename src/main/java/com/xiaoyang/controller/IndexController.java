@@ -7,12 +7,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiaoyang.constant.HomeConstant;
 import com.xiaoyang.dto.article.ArticleListByTagPageDTO;
 import com.xiaoyang.dto.article.ArticleListDTO;
 import com.xiaoyang.dto.article.ArticleTopSearchPageDTO;
 import com.xiaoyang.dto.base.CommonPage;
 import com.xiaoyang.pojo.*;
-import com.xiaoyang.scheduled.ScheduledTasks;
 import com.xiaoyang.service.*;
 import com.xiaoyang.utils.CommonUtils;
 import com.xiaoyang.utils.RedisCache;
@@ -26,11 +26,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,7 +102,7 @@ public class IndexController {
         List<String> hotArticleIdList = redisCache.getCacheList("hotArticleIdList");
         List<Article> articleHotVoList = new ArrayList<>();
         if (CollUtil.isEmpty(hotArticleIdList) || hotArticleIdList.size() < 0) {
-            String sql = "limit " + ScheduledTasks.HOT_ARTICLE_LIST_NUMBER;
+            String sql = "limit " + HomeConstant.HOT_ARTICLE_LIST_NUMBER;
             articleHotVoList = articleService.list(Wrappers.<Article>lambdaQuery()
                     .select(Article::getArticleId, Article::getArticleTitle)
                     .orderByDesc(Article::getArticleLookNums)
@@ -317,7 +315,6 @@ public class IndexController {
                 .in(ArticleTag::getArticleTagName, titleList)
                 .select(ArticleTag::getArticleTagId)).stream().map(ArticleTag::getArticleTagId).collect(Collectors.toList());
         List<String> articleIdList = new ArrayList<>();
-        System.out.println("articleIdList = " + articleTagIdList);
         if (CollUtil.isNotEmpty(articleTagIdList)) {
             articleIdList = articleTagListService.list(Wrappers.<ArticleTagList>lambdaQuery()
                     .in(ArticleTagList::getArticleTagId, articleTagIdList)

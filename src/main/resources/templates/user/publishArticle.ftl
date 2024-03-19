@@ -15,7 +15,6 @@
                 <div class="col-xs-12 col-sm-9" style="padding: 2px;">
                     <form class="form-horizontal">
                         <input type="hidden" id="articleId" name="articleId" value="${(article.articleId)!}">
-
                         <div class="form-group">
                             <label for="articleTitle" class="col-xs-2 col-sm-1">标题</label>
                             <div class="col-xs-10 col-sm-10">
@@ -119,7 +118,7 @@
     </div>
 </div>
 
-<script src="//cdn.jsdelivr.net/gh/xwLrbh/HandyEditor@1.8.0/HandyEditor.min.js"></script>
+
 <script>
 
     // 选中标签列表
@@ -130,10 +129,11 @@
         width: '100%',
         height: '200px',
         autoHeight: true,
-        autoFloat: false,
+        autoFloat: true,
         topOffset: 0,
         uploadPhoto: true,
         uploadPhotoHandler: '/user/uploadArticle',
+        debug: true,
         uploadPhotoSize: 1024,
         uploadPhotoType: 'gif,png,jpg,jpeg',
         uploadPhotoSizeError: '不能上传大于1024KB的图片',
@@ -143,7 +143,6 @@
         skin: 'HandyEditor',
         externalSkin: '',
         item: ['bold', 'italic', 'strike', 'underline', 'fontSize', 'fontName', 'paragraph', 'color', 'backColor', '|', 'center', 'left', 'right', 'full', 'indent', 'outdent', '|', 'link', 'unlink', 'textBlock', 'code', 'selectAll', 'removeFormat', 'trash', '|', 'image', 'expression', 'subscript', 'superscript', 'horizontal', 'orderedList', 'unorderedList', '|', 'undo', 'redo', '|', 'html', '|', 'about']
-
     });
 
     // 发布文章
@@ -216,7 +215,6 @@
             articleTagIds.push(articleTagId);
             $("#" + articleTagId).addClass("label-success");
         }
-        console.log(articleTagIds)
     }
 
     // 获取二级分类

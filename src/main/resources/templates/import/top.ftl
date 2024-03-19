@@ -17,6 +17,8 @@
     <#--    <script src="//cdn.bootcdn.net/ajax/libs/zui/1.10.0/js/zui.min.js"></script>-->
     <script src="/zui/js/zui.min.js"></script>
     <script src="/js/common.js"></script>
+    <script src="/HandyEditor-master/HandyEditor.min.js"></script>
+    <#--    <script src="//cdn.jsdelivr.net/gh/xwLrbh/HandyEditor@1.8.0/HandyEditor.min.js"></script>-->
     <title>Title</title>
 </head>
 <body>

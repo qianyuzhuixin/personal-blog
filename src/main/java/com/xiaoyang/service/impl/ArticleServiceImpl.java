@@ -17,12 +17,15 @@ import com.xiaoyang.mapper.UserCollectMapper;
 import com.xiaoyang.pojo.*;
 import com.xiaoyang.service.*;
 import com.xiaoyang.mapper.ArticleMapper;
+import com.xiaoyang.utils.RedisCache;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.vo.article.AdminArticlePageVo;
 import com.xiaoyang.vo.article.IndexArticleVo;
 import com.xiaoyang.vo.article.ShowArticleVo;
 import com.xiaoyang.vo.article.UserArticlePageVo;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +67,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Resource
     private UserCollectMapper userCollectMapper;
 
+    @Autowired
+    private RedisCache redisCache;
+
     @Override
     public IPage<AdminArticlePageVo> articleList(IPage<AdminArticlePageVo> articlePage, String articleTitle) {
         return articleMapper.articleList(articlePage, articleTitle);
@@ -90,6 +96,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (!saveOrUpdate(article)) {
             return Result.failed("发布文章失败, 请稍后重试");
         }
+
         ArrayList<ArticleTagList> articleTagLists = new ArrayList<>();
         for (String articleTagId : publishArticleActionDTO.getArticleTagIds()) {
             ArticleTagList articleTagList = new ArticleTagList();
@@ -105,6 +112,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new RuntimeException("发布文章失败，保存标签失败");
         }
         servletContext.removeAttribute("articleIndexList");
+
+        redisCache.deleteObject("articleIndexList");
 
         return Result.OK("发布成功！");
     }

@@ -1,6 +1,9 @@
 package com.xiaoyang.utils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -55,5 +58,34 @@ public class CommonUtils {
             result.add(entry.getKey());
         }
         return result;
+    }
+
+    //将含有中文的路径进行编码
+    public static String encodePath(String path) {
+        String encodedPath = null;
+        try {
+            encodedPath = URLEncoder.encode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return encodedPath;
+    }
+
+    //将含有中文的路径进行解码
+    public static String decodePath(String path) {
+        String decodedPath = null;
+        try {
+            decodedPath = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return decodedPath;
+    }
+
+    //将中文名文件中的命名使用时间戳加uuid进行命名更改,不改后缀
+    public static String renameFile(String fileName) {
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        String name = UUID.nameUUIDFromBytes(fileName.getBytes()).toString();
+        return name + suffix;
     }
 }

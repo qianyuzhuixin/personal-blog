@@ -6,14 +6,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaoyang.pojo.UploadFile;
 import com.xiaoyang.service.UploadFileService;
 import com.xiaoyang.mapper.UploadFileMapper;
+import com.xiaoyang.utils.AliyunOSSUtils;
+import com.xiaoyang.utils.CommonUtils;
 import com.xiaoyang.utils.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author xiaomei
@@ -23,9 +28,12 @@ import java.util.Objects;
 @Service
 public class UploadFileServiceImpl extends ServiceImpl<UploadFileMapper, UploadFile>
         implements UploadFileService {
+    @Autowired
+    private AliyunOSSUtils aliyunOSSUtils;
+
 
     @Override
-    public String getUploadUrl(MultipartFile file) {
+    public String getUploadUrl(MultipartFile file) throws IOException {
         if (file.isEmpty() || file.getSize() < 1) {
             return null;
         }
@@ -38,23 +46,16 @@ public class UploadFileServiceImpl extends ServiceImpl<UploadFileMapper, UploadF
 
         // 获取文件名
         String fileName = file.getOriginalFilename();
-        fileName = FileUtils.getFileName(fileName);
-        String filePath = FileUtils.getUploadPath();
-        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(filePath + File.separator + fileName))) {
-            out.write(file.getBytes());
-            out.flush();
-
-            // 将文件路径备份
-            UploadFile uploadFile1 = new UploadFile();
-            uploadFile1.setFileSize(size);
-            uploadFile1.setUploadTime(DateUtil.date());
-            uploadFile1.setFileUrl(FileUtils.getImagePath() + fileName);
-            save(uploadFile1);
-            return uploadFile1.getFileUrl();
-        } catch (Exception e) {
-            log.error("上传文件失败:" + e.getMessage());
-        }
-        return null;
+        //fileName = FileUtils.getFileName(fileName);
+        //String filePath = FileUtils.getUploadPath();
+        String filePath = aliyunOSSUtils.uploadFile(file.getBytes(), fileName);
+        // 将文件路径备份
+        UploadFile uploadFile1 = new UploadFile();
+        uploadFile1.setFileSize(size);
+        uploadFile1.setUploadTime(DateUtil.date());
+        uploadFile1.setFileUrl(filePath);
+        save(uploadFile1);
+        return uploadFile1.getFileUrl();
     }
 }
 
