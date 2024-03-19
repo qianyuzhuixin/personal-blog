@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiaoyang.aop.LogAnnotation;
 import com.xiaoyang.constant.HomeConstant;
 import com.xiaoyang.dto.article.ArticleListByTagPageDTO;
 import com.xiaoyang.dto.article.ArticleListDTO;
@@ -73,12 +74,14 @@ public class IndexController {
 
     // 联系页面跳转
     @GetMapping("contact")
+    @LogAnnotation(module = "首页", operator = "联系页面跳转")
     public String contact() {
         return "/home/contact";
     }
 
     // 捐赠页面跳转
     @GetMapping("donate")
+    @LogAnnotation(module = "首页", operator = "捐赠页面跳转")
     public String donate() {
         return "/home/donate";
     }
@@ -86,6 +89,7 @@ public class IndexController {
 
     // 首页数据加载
     @GetMapping("")
+    @LogAnnotation(module = "首页", operator = "首页数据加载")
     public String index(HttpServletRequest request) {
         HttpSession session = request.getSession();
         // 获取文章类型
@@ -185,6 +189,7 @@ public class IndexController {
 
     // 根据文章类型获取文章列表
     @GetMapping("articleList")
+    @LogAnnotation(module = "首页", operator = "根据文章类型文章列表")
     public String articleList(HttpServletRequest request, @Valid ArticleListDTO articleListDTO, Model model) {
         // 获取文章列表
         IPage<IndexArticleVo> articleIPage = articleService.selectPageList(articleListDTO);
@@ -199,6 +204,7 @@ public class IndexController {
 
     // 根据文章标签id获取文章列表
     @GetMapping("articleListByTagId")
+    @LogAnnotation(module = "首页", operator = "根据文章标签id获取文章列表")
     public String articleListByTagId(HttpServletRequest request, @Valid ArticleListByTagPageDTO articleListByTagPageDTO, Model model) {
         // 获取文章列表
         IPage<IndexArticleVo> articleIPage = articleService.articleListByTagId(request, articleListByTagPageDTO);
@@ -214,6 +220,7 @@ public class IndexController {
     // 文章点赞
     @PostMapping("articleAddGood")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "文章点赞")
     public Result articleAddGood(HttpServletRequest request, String articleId) {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
@@ -248,6 +255,7 @@ public class IndexController {
     // 文章收藏
     @PostMapping("articleAddCollection")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "文章收藏")
     public Result articleAddCollect(HttpServletRequest request, String articleId) {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
@@ -288,6 +296,7 @@ public class IndexController {
 
     // 文章搜索
     @GetMapping("searchArticleByTypeOrTitle")
+    @LogAnnotation(module = "首页", operator = "文章搜索")
     public String searchArticleByTypeOrTitle(ArticleTopSearchPageDTO articleTopSearchPageDTO, HttpServletRequest request, Model model) {
         String keyword = articleTopSearchPageDTO.getKeyword();
         if (StrUtil.isBlank(keyword)) {
@@ -353,6 +362,7 @@ public class IndexController {
     // 文章评论点赞
     @PostMapping("goodComment")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "文章评论点赞")
     public Result goodComment(String commentId, HttpServletRequest request) {
         if (StrUtil.isBlank(commentId)) {
             return Result.failed("页面数据出现错误，请刷新重试！");

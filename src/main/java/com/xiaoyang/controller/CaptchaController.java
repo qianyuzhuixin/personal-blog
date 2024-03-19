@@ -3,6 +3,7 @@ package com.xiaoyang.controller;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
 import cn.hutool.captcha.LineCaptcha;
+import com.xiaoyang.aop.LogAnnotation;
 import com.xiaoyang.utils.Captcha;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class CaptchaController {
 
     @GetMapping("getCaptcha")
+    @LogAnnotation(module = "登录注册", operator = "获取验证码")
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 定义图形验证码的长和宽
         CircleCaptcha captcha = Captcha.getCaptcha(request);

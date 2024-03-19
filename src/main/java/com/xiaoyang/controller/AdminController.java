@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiaoyang.aop.LogAnnotation;
 import com.xiaoyang.dto.article.AddArticleTypeDTO;
 import com.xiaoyang.dto.article.ArticlePageDTO;
 import com.xiaoyang.dto.article.UpdateArticleTypeDTO;
@@ -87,6 +88,7 @@ public class AdminController {
 
     // 中间跳转
     @GetMapping("login")
+    @LogAnnotation(module = "admin", operator = "登录跳转")
     public String login(HttpServletRequest request) {
         if (Objects.nonNull(request.getSession().getAttribute("admin"))) {
             return "redirect:/xyadmin/";
@@ -96,6 +98,7 @@ public class AdminController {
 
     // 管理员退出
     @GetMapping("logout")
+    @LogAnnotation(module = "admin", operator = "退出登录")
     public String logout(HttpServletRequest request) {
         request.getSession().removeAttribute("admin");
         return "redirect:/xyadmin/login";
@@ -104,6 +107,7 @@ public class AdminController {
     // 管理员登录
     @PostMapping("/adminLogin")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "登录")
     public Result adminLogin(@Length(min = 3, max = 25, message = "用户名长度为3-25个字符") @RequestParam("adminName") String adminName,
                              @Length(min = 6, max = 25, message = "密码长度为6-25个字符") @RequestParam("adminPassword") String adminPassword, String verifyCode, HttpServletRequest request) {
 
@@ -128,6 +132,7 @@ public class AdminController {
     // 修改密码
     @PostMapping("/changePassword")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "修改密码")
     public Result changePassword(@Length(min = 6, max = 25, message = "密码长度为6-25个字符") @RequestParam String newPassword, HttpServletRequest request) {
         Admin admin = (Admin) request.getSession().getAttribute("admin");
         admin.setAdminPassword(SecureUtil.md5(admin.getAdminName() + newPassword));
@@ -142,6 +147,7 @@ public class AdminController {
 
     // 查看当前系统基本信息
     @GetMapping("")
+    @LogAnnotation(module = "admin", operator = "查看当前系统基本信息")
     public String index(Model model) {
         //当前系统信息
         OsInfo osInfo = SystemUtil.getOsInfo();
@@ -164,6 +170,7 @@ public class AdminController {
 
     // 查看所有用户信息
     @GetMapping("userList")
+    @LogAnnotation(module = "admin", operator = "查看所有用户信息")
     public String userList(@Valid UserListPageDto userListPageDto, Model model) {
         Integer pageNum = userListPageDto.getPageNum();
         Integer pageSize = userListPageDto.getPageSize();
@@ -189,6 +196,7 @@ public class AdminController {
     // 删除用户
     @PostMapping("delUser")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除用户")
     public Result userDel(String userId) {
         if (StrUtil.isBlank(userId)) {
             return Result.build(null, ResultCodeEnum.ARGUMENT_ERROR);
@@ -205,6 +213,7 @@ public class AdminController {
     // 修改用户
     @PostMapping("updateUser")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "修改用户")
     public Result userUpdate(@Valid UserDto userDto) {
         User user = userService.getById(userDto.getUserId());
         if (user == null) {
@@ -228,6 +237,7 @@ public class AdminController {
 
     // 查看所有文章类型
     @GetMapping("articleTypeList")
+    @LogAnnotation(module = "admin", operator = "查看所有文章类型")
     public String articleTypeList(Model model, String articleTypeParentId) {
         List<ArticleTypeVo> articleTypeVoList = articleTypeService.articleTypeList();
         model.addAttribute("articleTypeVoList", articleTypeVoList);
@@ -240,6 +250,7 @@ public class AdminController {
     // 添加文章类型
     @PostMapping("addArticleType")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "添加文章类型")
     public Result addArticleType(@Valid AddArticleTypeDTO addArticleTypeDTO) {
         ArticleType articleType = new ArticleType();
         BeanUtils.copyProperties(addArticleTypeDTO, articleType);
@@ -258,6 +269,7 @@ public class AdminController {
     // 修改文章类型
     @PostMapping("updateArticleType")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "修改文章类型")
     public Result updateArticleType(UpdateArticleTypeDTO updateArticleTypeDTO) {
         ArticleType articleType = new ArticleType();
         BeanUtils.copyProperties(updateArticleTypeDTO, articleType);
@@ -278,6 +290,7 @@ public class AdminController {
     // 删除文章类型
     @PostMapping("delArticleType")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除文章类型")
     public Result delArticleType(@NotBlank(message = "文章类型id 不能为空") String articleTypeId) {
         int count = articleService.count(Wrappers.<Article>lambdaQuery().eq(Article::getArticleTypeId, articleTypeId));
         if (count > 0) {
@@ -301,6 +314,7 @@ public class AdminController {
 
     // 查看所有文章标签
     @GetMapping("articleTagList")
+    @LogAnnotation(module = "admin", operator = "查看文章标签列表")
     public String articleTageList(Model model) {
         List<ArticleTag> articleTagList = articleTagService.list(Wrappers.<ArticleTag>lambdaQuery().orderByDesc(ArticleTag::getArticleTagAddTime));
         model.addAttribute("articleTagList", articleTagList);
@@ -310,6 +324,7 @@ public class AdminController {
     // 添加文章标签
     @PostMapping("addOrUpdateArticleTag")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "添加或修改文章标签")
     public Result addOrUpdateArticleTag(ArticleTag articleTag) {
         String articleTagId = articleTag.getArticleTagId();
         if (StrUtil.isNotBlank(articleTagId)) {
@@ -331,6 +346,7 @@ public class AdminController {
     // 删除文章标签
     @PostMapping("delArticleTag")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除文章标签")
     public Result delArticleTag(@NotBlank(message = "文章标签id 不能为空") String articleTagId) {
         if (!StrUtil.isNotBlank(articleTagId)) {
             return Result.build(null, ResultCodeEnum.ARGUMENT_ERROR);
@@ -348,6 +364,7 @@ public class AdminController {
 
     // 查询所有文章
     @GetMapping("articleList")
+    @LogAnnotation(module = "admin", operator = "查询所有文章")
     public String articleList(@Valid ArticlePageDTO articlePageDTO, Model model) {
         IPage<AdminArticlePageVo> articlePage = new Page<>(articlePageDTO.getPageNum(), articlePageDTO.getPageSize());
         IPage<AdminArticlePageVo> articlePageVoList = articleService.articleList(articlePage, articlePageDTO.getArticleTitle());
@@ -361,6 +378,7 @@ public class AdminController {
     // 删除文章
     @PostMapping("delArticle")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除文章")
     public Result delArticle(String articleId) {
         if (articleService.delArticle(articleId).getCode() == 200) {
             return Result.OK("删除成功！");
@@ -371,6 +389,7 @@ public class AdminController {
 
     // 查询所有友情链接
     @GetMapping("linkList")
+    @LogAnnotation(module = "admin", operator = "查询所有友情链接")
     public String linkList(Model model) {
         List<Link> linkList = linkService.list(Wrappers.<Link>lambdaQuery().orderByAsc(Link::getLinkSort));
         model.addAttribute("linkList", linkList);
@@ -380,6 +399,7 @@ public class AdminController {
     // 添加或修改友情链接
     @PostMapping("addOrUpdateLink")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "添加或修改友情链接")
     public Result addOrUpdateLink(Link link) {
         String linkId = link.getLinkId();
         if (!StrUtil.isNotBlank(linkId)) {
@@ -402,6 +422,7 @@ public class AdminController {
     // 删除友链
     @PostMapping("delLink")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除友链")
     public Result delLink(String linkId) {
         if (linkService.removeById(linkId)) {
             redisCache.deleteObject("linkList");
@@ -414,6 +435,7 @@ public class AdminController {
     // 广告管理
     // 获取广告列表
     @GetMapping("adList")
+    @LogAnnotation(module = "admin", operator = "广告列表")
     public String adList(String adTypeId, Model model) {
         List<AdType> adTypeList = adTypeService.list(Wrappers.<AdType>lambdaQuery()
                 .orderByAsc(AdType::getAdTypeSort));
@@ -426,6 +448,7 @@ public class AdminController {
     // 添加或更新广告类型
     @PostMapping("addOrUpdateAdType")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "添加或更新广告类型")
     public Result addOrUpdateAdType(AdType adType) {
         if (StrUtil.isBlank(adType.getAdTypeId())) {
             adType.setAdTypeAddTime(DateUtil.date());
@@ -448,6 +471,7 @@ public class AdminController {
     // 添加或更新广告
     @PostMapping("addOrUpdateAd")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "添加或更新广告")
     public Result addOrUpdateAd(Ad ad) {
         if (StrUtil.isBlank(ad.getAdId())) {
             ad.setAdAddTime(DateUtil.date());
@@ -470,6 +494,7 @@ public class AdminController {
     // 删除广告
     @PostMapping("delAd")
     @ResponseBody
+    @LogAnnotation(module = "admin", operator = "删除广告")
     public Result delAd(String adId) {
         if (adService.removeById(adId)) {
             redisCache.deleteObject("adHomeList");

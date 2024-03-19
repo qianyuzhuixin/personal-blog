@@ -1,5 +1,8 @@
 package com.xiaoyang.utils;
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -87,5 +90,11 @@ public class CommonUtils {
         String suffix = fileName.substring(fileName.lastIndexOf("."));
         String name = UUID.nameUUIDFromBytes(fileName.getBytes()).toString();
         return name + suffix;
+    }
+
+    // 获取request
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attributes.getRequest();
     }
 }

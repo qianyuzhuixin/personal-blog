@@ -7,6 +7,7 @@ import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiaoyang.aop.LogAnnotation;
 import com.xiaoyang.dto.article.PublishArticleActionDTO;
 import com.xiaoyang.dto.article.UserCollectDTO;
 import com.xiaoyang.dto.base.CommonPage;
@@ -21,7 +22,6 @@ import com.xiaoyang.vo.article.UserCollectArticlePageVo;
 import com.xiaoyang.vo.comment.CommentVo;
 import com.xiaoyang.vo.comment.ReplyCommentVo;
 import org.hibernate.validator.constraints.Length;
-import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -82,6 +82,7 @@ public class UserController {
     // 注册
     @PostMapping("signIn")
     @ResponseBody
+    @LogAnnotation(module = "用户", operator = "注册")
     public Result signIn(@Length(min = 3, max = 25, message = "用户名长度为3-25个字符") @RequestParam("userName") String userName,
                          @Length(min = 6, max = 25, message = "密码长度为6-25个字符") @RequestParam("password") String password, String verifyCode, HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -110,6 +111,7 @@ public class UserController {
 
     // 中间跳转
     @GetMapping("logInOrSignIn")
+    @LogAnnotation(module = "用户", operator = "登录或注册跳转")
     public String login(HttpServletRequest request, Model model) {
         if (Objects.nonNull(request.getSession().getAttribute("user"))) {
             return "redirect:/";
@@ -121,6 +123,7 @@ public class UserController {
 
     // 退出
     @GetMapping("logOut")
+    @LogAnnotation(module = "用户", operator = "退出登录")
     public String logout(HttpServletRequest request) {
         request.getSession().removeAttribute("user");
         return "redirect:/user/logInOrSignIn";
@@ -129,8 +132,9 @@ public class UserController {
     // 登录
     @PostMapping("login")
     @ResponseBody
-    public Result adminLogin(@Length(min = 3, max = 25, message = "用户名长度为3-25个字符") @RequestParam("userName") String userName,
-                             @Length(min = 6, max = 25, message = "密码长度为6-25个字符") @RequestParam("password") String password, String verifyCode, HttpServletRequest request) {
+    @LogAnnotation(module = "用户", operator = "登录")
+    public Result userLogin(@Length(min = 3, max = 25, message = "用户名长度为3-25个字符") @RequestParam("userName") String userName,
+                            @Length(min = 6, max = 25, message = "密码长度为6-25个字符") @RequestParam("password") String password, String verifyCode, HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (StrUtil.isBlank(verifyCode) || !verifyCode.equals(session.getAttribute("circleCaptchaCode"))) {
             session.removeAttribute("circleCaptchaCode");
@@ -159,6 +163,7 @@ public class UserController {
 
     // 发布文章
     @GetMapping("publishArticle")
+    @LogAnnotation(module = "文章", operator = "发布或修改文章")
     public String publishArticle(HttpServletRequest request, Model model, String articleId) {
         User user = (User) request.getSession().getAttribute("user");
         // 如果没有写作权限就跳转到首页
@@ -212,6 +217,7 @@ public class UserController {
     // 根据一级文章分类获取二级分类
     @PostMapping("getArticleTypeChild")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "获取二级分类")
     public Result getArticleTypeChild(String articleTypeId) {
         if (StrUtil.isBlank(articleTypeId)) {
             return Result.failed("请选择一级分类");
@@ -229,6 +235,7 @@ public class UserController {
     // 编写文章时上传图片
     @PostMapping("uploadArticle")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "上传图片")
     public String uploadArticle(HttpServletRequest request, MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             return null;
@@ -245,6 +252,7 @@ public class UserController {
     // 获取编写文章的内容
     @PostMapping("publishArticleAction")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "获取发布文章内容")
     public Result publishArticleAction(@Valid PublishArticleActionDTO publishArticleActionDTO, HttpServletRequest request, MultipartFile articleCoverFile) throws IOException {
 
         User user = (User) request.getSession().getAttribute("user");
@@ -261,6 +269,7 @@ public class UserController {
 
     // 个人中心-》我的资料
     @GetMapping("myInformation")
+    @LogAnnotation(module = "用户", operator = "获取个人资料")
     public String myInformation(HttpServletRequest request, Model model) {
         User user = (User) request.getSession().getAttribute("user");
         model.addAttribute("user", user);
@@ -269,6 +278,7 @@ public class UserController {
 
     // 个人中心-》我的文章
     @GetMapping("myArticles")
+    @LogAnnotation(module = "用户", operator = "获取个人文章")
     public String myArticles(Integer pageNumber, Model model, HttpServletRequest request) {
         if (Objects.isNull(pageNumber) || pageNumber < 1) {
             pageNumber = 1;
@@ -282,6 +292,7 @@ public class UserController {
 
     // 个人中心-》我的收藏
     @GetMapping("myCollect")
+    @LogAnnotation(module = "用户", operator = "获取个人收藏")
     public String myArticles(Model model, HttpServletRequest request, UserCollectDTO userCollectDTO) {
         User user = (User) request.getSession().getAttribute("user");
         Page<UserCollectArticlePageVo> userCollectPage = new Page<>(userCollectDTO.getPageNum(), userCollectDTO.getPageSize());
@@ -293,6 +304,7 @@ public class UserController {
     // 取消收藏
     @PostMapping("delCollect")
     @ResponseBody
+    @LogAnnotation(module = "用户", operator = "取消收藏")
     public Result delCollect(String articleId) {
         return userCollectService.delCollect(articleId);
     }
@@ -300,6 +312,7 @@ public class UserController {
 
     // 展示文章内容
     @GetMapping("showArticle")
+    @LogAnnotation(module = "文章", operator = "获取文章内容")
     public String showArticle(@RequestParam String articleId, Model model, HttpServletRequest request) {
         ShowArticleVo article = articleService.showArticle(articleId);
         HttpSession session = request.getSession();
@@ -321,6 +334,7 @@ public class UserController {
     // 展示用户评论
     @PostMapping("showComment")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "获取文章评论")
     public Result showComment(String articleId, Integer pageNumber, HttpServletRequest request) {
         if (StrUtil.isBlank(articleId)) {
             return Result.failed("未获取到文章id，请刷新页面重试！");
@@ -355,6 +369,7 @@ public class UserController {
     // 展示用户回复评论
     @PostMapping("showRecoverComment")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "获取文章回复评论")
     public Result showRecoverComment(String commentId, Integer pageNumber, HttpServletRequest request) {
         if (StrUtil.isBlank(commentId)) {
             return Result.failed("出现异常，请刷新页面重试！");
@@ -388,6 +403,7 @@ public class UserController {
     // 删除文章
     @PostMapping("delArticle")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "删除文章")
     public Result delArticle(@RequestParam String articleId) {
         return articleService.delArticle(articleId);
     }
@@ -396,6 +412,7 @@ public class UserController {
     // 添加评论
     @PostMapping("saveComment")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "添加评论")
     public Result saveComment(String articleId, String commentContext, HttpServletRequest request) {
         if (StrUtil.isBlank(articleId) || StrUtil.isBlank(commentContext)) {
             return Result.failed("页面出现错误，请刷新重试！");
@@ -440,6 +457,7 @@ public class UserController {
     @PostMapping("saveReplyComment")
     @ResponseBody
     @Transactional
+    @LogAnnotation(module = "文章", operator = "添加回复评论")
     public Result saveReplyComment(String topLevelCommentId, String beRepliedCommentId, String commentContext, HttpServletRequest request) {
         if (StrUtil.isBlank(commentContext) || StrUtil.isBlank(beRepliedCommentId)) {
             return Result.failed("页面出现错误，请刷新重试！");
@@ -508,6 +526,7 @@ public class UserController {
     // 获取被回复人信息
     @PostMapping("getReplyPeople")
     @ResponseBody
+    @LogAnnotation(module = "文章", operator = "获取被回复人信息")
     public Result getReplyPeople(String commentId) {
         return userService.getReplyPeople(commentId);
     }
