@@ -1,6 +1,7 @@
 package com.xiaoyang.aop;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.xiaoyang.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,7 +12,11 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 日志aop
@@ -45,7 +50,7 @@ public class LogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         LogAnnotation logAnnotation = method.getAnnotation(LogAnnotation.class);
-        log.info("===========================log start============================");
+        log.info("===========================log end============================");
         log.info("module: {}", logAnnotation.module());
         log.info("operator: {}", logAnnotation.operator());
 
@@ -55,11 +60,17 @@ public class LogAspect {
         log.info("request method: {}", className + "." + methodName + "()");
 
         //请求的参数
+        //序列化时过滤掉request和response
         Object[] args = joinPoint.getArgs();
         for (int i = 0; i < args.length; i++) {
-            String params = JSON.toJSONString(args[i]);
-            log.info("params: {}", params);
+            // 如果参数类型是请求和响应的http，则不需要拼接【这两个参数，使用JSON.toJSONString()转换会抛异常】
+            if (args[i] instanceof HttpServletRequest || args[i] instanceof HttpServletResponse) {
+                continue;
+            }
+            String result = JSON.toJSONString(args[i]);
+            log.info("params: {}", result);
         }
+
         //获取request 设置IP地址
         HttpServletRequest request = CommonUtils.getRequest();
         log.info("ip: {}", CommonUtils.getClientIpAddress(request));
