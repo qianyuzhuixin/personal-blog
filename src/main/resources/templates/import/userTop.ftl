@@ -19,27 +19,31 @@
             <!-- 一般导航项目 -->
             <ul class="nav navbar-nav">
                 <!-- 导航中的下拉菜单 -->
-                <#if articleTypeHomeTreeVoList?? && articleTypeHomeTreeVoList?size gt 0>
-                    <#list articleTypeHomeTreeVoList as articleTypeHomeTreeVo>
-                        <li class="dropdown">
-                            <a href="javascript:void(0)" class="dropdown-toggle"
-                               data-toggle="dropdown">${articleTypeHomeTreeVo.articleTypeName!} <b
-                                        class="caret"></b></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <#if articleTypeHomeTreeVo.articleChildList?? && articleTypeHomeTreeVo.articleChildList?size gt 0>
-                                    <#list articleTypeHomeTreeVo.articleChildList as articleTypeHomeTreeVoChild>
-                                        <li>
-                                            <a href="/articleList?articleTypeId=${articleTypeHomeTreeVoChild.articleTypeId!}"
-                                            >${articleTypeHomeTreeVoChild.articleTypeName!}</a>
-                                        </li>
-                                    </#list>
-                                <#else >
-                                    <li><a href="#">暂无该分类</a></li>
-                                </#if>
-                            </ul>
-                        </li>
-                    </#list>
-                </#if>
+                <li class="my-dropdown">
+                    <div class="my-dropbtn">分类</div>
+                    <div class="my-dropdown-content">
+                        <#if articleTypeHomeTreeVoList?? && articleTypeHomeTreeVoList?size gt 0>
+                            <#list articleTypeHomeTreeVoList as articleTypeHomeTreeVo>
+                                <a href="javascript:void(0)" class="dropdown-toggle"
+                                   data-toggle="dropdown">${articleTypeHomeTreeVo.articleTypeName!} <b
+                                            class="caret"></b></a>
+                                <ul class="dropdown-content" role="menu">
+                                    <#if articleTypeHomeTreeVo.articleChildList?? && articleTypeHomeTreeVo.articleChildList?size gt 0>
+                                        <#list articleTypeHomeTreeVo.articleChildList as articleTypeHomeTreeVoChild>
+                                            <li>
+                                                <a href="/articleList?articleTypeId=${articleTypeHomeTreeVoChild.articleTypeId!}"
+                                                >${articleTypeHomeTreeVoChild.articleTypeName!}</a>
+                                            </li>
+                                        </#list>
+                                    <#else >
+                                        <li><a href="#">暂无该分类</a></li>
+                                    </#if>
+                                </ul>
+
+                            </#list>
+                        </#if>
+                    </div>
+                </li>
                 <li><a href="/contact"><i class="icon icon-comments"></i>联系</a></li>
                 <li><a href="/donate">￥请站长喝可乐</a></li>
                 <#if Session["user"]?exists>
@@ -72,6 +76,98 @@
         </div><!-- END .navbar-collapse -->
     </div>
 </nav>
+<style>
+    /* 下拉按钮 */
+    .my-dropbtn {
+        color: #ecebeb;
+        padding: 9px 15px;
+        font-size: 15px;
+        border: none;
+    }
+
+    /* 容器 <div> - 需要定位下拉内容 */
+    .my-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* 下拉内容（默认隐藏）*/
+    .my-dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    /* 下拉列表中的链接 */
+    .my-dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    /* 更改悬停时下拉链接的颜色 */
+    .my-dropdown-content a:hover {
+        background-color: #ddd;
+    }
+
+    /* 悬停时显示下拉菜单 */
+    .my-dropdown:hover .my-dropdown-content {
+        display: block;
+    }
+
+    /* 显示下拉内容时更改下拉按钮的背景颜色 */
+    .my-dropdown:hover .my-dropbtn {
+        background-color: #1868E8;
+    }
+
+    /* 设置选项卡样式 */
+    .tab {
+        float: left;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+        width: 30%;
+        height: 300px;
+    }
+
+    /* 为用于打开选项卡内容的按钮设置样式 */
+    .tab button {
+        display: block;
+        background-color: inherit;
+        color: black;
+        padding: 22px 16px;
+        width: 100%;
+        border: none;
+        outline: none;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    /* 更改悬停按钮的背景颜色 */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+    /* 创建一个活动的/当前的 "tab button" 类 */
+    .tab button.active {
+        background-color: #ccc;
+    }
+
+    /* 设置选项卡内容的样式 */
+    .tabcontent {
+        float: left;
+        padding: 0px 12px;
+        border: 1px solid #ccc;
+        width: 70%;
+        border-left: none;
+        height: 300px;
+        display: none;
+    }
+
+</style>
 <script>
 
     // 搜索按钮

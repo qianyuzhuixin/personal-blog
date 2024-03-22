@@ -18,10 +18,12 @@
                     <span style="margin-left: 20px"><i class="icon icon-user"></i>作者：${article.userName!}</span>
                     <span class="label label-primary" style="margin-left: auto"><i
                                 class="icon icon-eye-open "></i>${article.articleLookNums!}</span>
-                    <span class="label label-success palm" onclick="articleAddGood('${article.articleId!}')"><i
-                                class="icon icon-thumbs-o-up "></i>${article.articleGoodNums!}</span>
-                    <span class="label label-danger palm" onclick="articleAddCollection('${article.articleId!}')"><i
-                                class="icon icon-star-empty "></i>${article.articleCollectionNums!}</span>
+                    <span id="userGood" class="label label-success palm"
+                          onclick="articleAddGood('${article.articleId!}')"><i id="userGoodI"
+                                                                               class="icon icon-thumbs-o-up "></i>${article.articleGoodNums!}</span>
+                    <span id="userCollect" class="label label-danger palm"
+                          onclick="articleAddCollection('${article.articleId!}')"><i id="userCollectI"
+                                                                                     class="icon icon-star-empty "></i>${article.articleCollectionNums!}</span>
                 </div>
                 <div class="article-context">
                     ${article.articleContent!}
@@ -467,7 +469,7 @@
             function (data) {
                 if (data.code == 200) {
                     successZuiMsg(data.message)
-                    location.reload();
+                    location.reload()
                     return;
                 }
                 warningZuiMsg(data.message);

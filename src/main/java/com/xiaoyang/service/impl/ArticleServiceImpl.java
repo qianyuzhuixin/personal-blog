@@ -141,7 +141,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     public List<IndexArticleVo> getArticleIndexList() {
-        List<Article> articleList = list(Wrappers.<Article>lambdaQuery().orderByAsc(Article::getArticleAddTime).last("limit 9"));
+        List<Article> articleList = list(Wrappers.<Article>lambdaQuery().orderByDesc(Article::getArticleAddTime).last("limit 9"));
         List<IndexArticleVo> articleIndexList = new ArrayList<>();
         for (Article article : articleList) {
             IndexArticleVo indexArticleVo = new IndexArticleVo();

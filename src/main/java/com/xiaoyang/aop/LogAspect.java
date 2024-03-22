@@ -10,9 +10,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
 /**
@@ -47,7 +51,7 @@ public class LogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         LogAnnotation logAnnotation = method.getAnnotation(LogAnnotation.class);
-        log.info("===========================log end============================");
+        log.info("===========================log start============================");
         log.info("module: {}", logAnnotation.module());
         log.info("operator: {}", logAnnotation.operator());
 
@@ -61,7 +65,9 @@ public class LogAspect {
         Object[] args = joinPoint.getArgs();
         for (int i = 0; i < args.length; i++) {
             // 如果参数类型是请求和响应的http，则不需要拼接【这两个参数，使用JSON.toJSONString()转换会抛异常】
-            if (args[i] instanceof HttpServletRequest || args[i] instanceof HttpServletResponse) {
+            if (args[i] instanceof HttpServletRequest || args[i] instanceof HttpServletResponse
+                    || args[i] instanceof MultipartFile || args[i] instanceof Model
+                    || args[i] instanceof HttpSession) {
                 continue;
             }
             String result = JSON.toJSONString(args[i]);

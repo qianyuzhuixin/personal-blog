@@ -25,7 +25,7 @@
         使用时通过:${name}
     -->
     <properties>
-        <property name="LOG_HOME">D:/logs/cby1194</property>
+        <property name="LOG_HOME">D:/log/cby</property>
         <property name="PATTERN">%d %highlight{%-5level}{ERROR=Bright RED, WARN=Bright Yellow, INFO=Bright Green,
             DEBUG=Bright Cyan, TRACE=Bright White} %style{[%t]}{bright,magenta} %style{%c{1.}.%M(%L)}{cyan}: %msg%n
         </property>

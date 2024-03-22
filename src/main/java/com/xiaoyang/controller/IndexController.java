@@ -189,7 +189,7 @@ public class IndexController {
 
     // 根据文章类型获取文章列表
     @GetMapping("articleList")
-    @LogAnnotation(module = "首页", operator = "根据文章类型文章列表")
+    @LogAnnotation(module = "首页", operator = "根据文章类型获取文章列表")
     public String articleList(HttpServletRequest request, @Valid ArticleListDTO articleListDTO, Model model) {
         // 获取文章列表
         IPage<IndexArticleVo> articleIPage = articleService.selectPageList(articleListDTO);
@@ -227,7 +227,7 @@ public class IndexController {
         if (Objects.isNull(user)) {
             return Result.failed("您还未登录！");
         }
-        if (Objects.nonNull(session.getAttribute("goodAdd"))) {
+        if (Objects.nonNull(session.getAttribute(articleId))) {
             return Result.failed("您已经点过赞了！");
         }
         // 更新文章点赞数
@@ -236,16 +236,20 @@ public class IndexController {
         boolean update = articleService.updateById(article);
         if (update) {
             // 更新session
-            session.setAttribute("goodAdd", true);
+            session.setAttribute(articleId, true);
             // 统计同一个文章在一段时间内点赞数量（用于判断是否为热门文章）
             Map<String, Integer> articleGoodNumsInScheduledTime = redisCache.getCacheMap("articleGoodNumsInScheduledTime");
             Integer num = 0;
             if (CollUtil.isNotEmpty(articleGoodNumsInScheduledTime)) {
                 num = articleGoodNumsInScheduledTime.get(articleId);
+                if (Objects.isNull(num)) {
+                    num = 0;
+                }
             }
             articleGoodNumsInScheduledTime = new HashMap<>();
             articleGoodNumsInScheduledTime.put(articleId, ++num);
             redisCache.setCacheMap("articleGoodNumsInScheduledTime", articleGoodNumsInScheduledTime);
+            redisCache.deleteObject("articleIndexList");
             return Result.OK("点赞成功！");
         }
         // 更新失败
@@ -287,10 +291,14 @@ public class IndexController {
         Integer num = 0;
         if (CollUtil.isNotEmpty(articleCollectNumsInScheduledTime)) {
             num = articleCollectNumsInScheduledTime.get(articleId);
+            if (Objects.isNull(num)) {
+                num = 0;
+            }
         }
         articleCollectNumsInScheduledTime = new HashMap<>();
         articleCollectNumsInScheduledTime.put(articleId, ++num);
         redisCache.setCacheMap("articleCollectNumsInScheduledTime", articleCollectNumsInScheduledTime);
+        redisCache.deleteObject("articleIndexList");
         return Result.OK("收藏成功！");
     }
 

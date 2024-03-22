@@ -252,7 +252,7 @@ public class UserController {
     // 获取编写文章的内容
     @PostMapping("publishArticleAction")
     @ResponseBody
-    @LogAnnotation(module = "文章", operator = "获取发布文章内容")
+    @LogAnnotation(module = "文章", operator = "编写文章")
     public Result publishArticleAction(@Valid PublishArticleActionDTO publishArticleActionDTO, HttpServletRequest request, MultipartFile articleCoverFile) throws IOException {
 
         User user = (User) request.getSession().getAttribute("user");
@@ -292,7 +292,6 @@ public class UserController {
 
     // 个人中心-》我的收藏
     @GetMapping("myCollect")
-    @LogAnnotation(module = "用户", operator = "获取个人收藏")
     public String myArticles(Model model, HttpServletRequest request, UserCollectDTO userCollectDTO) {
         User user = (User) request.getSession().getAttribute("user");
         Page<UserCollectArticlePageVo> userCollectPage = new Page<>(userCollectDTO.getPageNum(), userCollectDTO.getPageSize());

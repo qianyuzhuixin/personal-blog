@@ -22,15 +22,15 @@
                                 </p>
                             </a>
                             <div class="article-bottom">
-                                <span class="label label-warning type-name" style="margin: 0 10px;"
+                                <span class="label label-warning type-name palm" style="margin: 0 10px;"
                                 >${(article.articleTypeName)!}</span>
                                 <span style="margin: 0"><i
                                             class="icon icon-eye-open"></i>${(article.articleLookNums)!}</span>
-                                <span class="label label-info updateArticle"
+                                <span class="label label-info updateArticle palm"
                                       style="margin: 0 0 0 auto ;height: 20px"
                                       onclick="updateArticle('${(article.articleId)!}')">
                                     修改</span>
-                                <span class="label label-danger deleteArticle" style="margin: 0 10px;height: 20px"
+                                <span class="label label-danger deleteArticle palm" style="margin: 0 10px;height: 20px"
                                       onclick="delCollect('${(article.articleId)!}')"
                                 >取消收藏</span>
                             </div>
@@ -203,6 +203,9 @@
         background-color: red;
     }
 
+    .palm:hover {
+        cursor: pointer;
+    }
 
 </style>
 
