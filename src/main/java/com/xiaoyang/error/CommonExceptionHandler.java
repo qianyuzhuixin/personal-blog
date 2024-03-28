@@ -3,11 +3,13 @@ package com.xiaoyang.error;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.utils.ResultCodeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,12 @@ public class CommonExceptionHandler {
                 .stream().map(ObjectError::getDefaultMessage)
                 .collect(Collectors.toList());
         return Result.failed(defaultMsg.get(0));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = RuntimeException.class)
+    public Result handler(RuntimeException e) {
+        return Result.failed(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

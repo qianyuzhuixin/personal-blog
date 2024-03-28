@@ -413,8 +413,11 @@ public class UserController {
     @ResponseBody
     @LogAnnotation(module = "文章", operator = "添加评论")
     public Result saveComment(String articleId, String commentContext, HttpServletRequest request) {
-        if (StrUtil.isBlank(articleId) || StrUtil.isBlank(commentContext)) {
+        if (StrUtil.isBlank(articleId)) {
             return Result.failed("页面出现错误，请刷新重试！");
+        }
+        if (StrUtil.isBlank(commentContext)) {
+            return Result.failed("评论内容不能为空！");
         }
         if (commentContext.length() < 1 || commentContext.length() > 800) {
             return Result.failed("评论长度需在1~800之间！");

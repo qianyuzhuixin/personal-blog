@@ -61,7 +61,7 @@ public class LogAspect {
         log.info("request method: {}", className + "." + methodName + "()");
 
         //请求的参数
-        //序列化时过滤掉request和response
+        //序列化时过滤掉request和response、MultipartFile、Model、HttpSession
         Object[] args = joinPoint.getArgs();
         for (int i = 0; i < args.length; i++) {
             // 如果参数类型是请求和响应的http，则不需要拼接【这两个参数，使用JSON.toJSONString()转换会抛异常】

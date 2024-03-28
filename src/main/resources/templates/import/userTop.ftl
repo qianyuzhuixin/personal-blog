@@ -20,14 +20,18 @@
             <ul class="nav navbar-nav">
                 <!-- 导航中的下拉菜单 -->
                 <li class="my-dropdown">
-                    <div class="my-dropbtn">分类</div>
+                    <div class="my-drop-btn">分类</div>
                     <div class="my-dropdown-content">
                         <#if articleTypeHomeTreeVoList?? && articleTypeHomeTreeVoList?size gt 0>
                             <#list articleTypeHomeTreeVoList as articleTypeHomeTreeVo>
-                                <a href="javascript:void(0)" class="dropdown-toggle"
+                                <a href="javascript:void(0)" class="dropdown-toggle father-type"
+                                   id="fa${articleTypeHomeTreeVo.articleTypeId!}"
+                                   onmouseover="mouseOpenChildType('${articleTypeHomeTreeVo.articleTypeId!}')"
+                                   onclick="clickOpenChildType('${articleTypeHomeTreeVo.articleTypeId!}')"
                                    data-toggle="dropdown">${articleTypeHomeTreeVo.articleTypeName!} <b
                                             class="caret"></b></a>
-                                <ul class="dropdown-content" role="menu">
+                                <ul class="child-type" id="ch${articleTypeHomeTreeVo.articleTypeId!}"
+                                    scrollTop="0">
                                     <#if articleTypeHomeTreeVo.articleChildList?? && articleTypeHomeTreeVo.articleChildList?size gt 0>
                                         <#list articleTypeHomeTreeVo.articleChildList as articleTypeHomeTreeVoChild>
                                             <li>
@@ -78,7 +82,7 @@
 </nav>
 <style>
     /* 下拉按钮 */
-    .my-dropbtn {
+    .my-drop-btn {
         color: #ecebeb;
         padding: 9px 15px;
         font-size: 15px;
@@ -97,6 +101,7 @@
         position: absolute;
         background-color: #f1f1f1;
         min-width: 160px;
+        border-radius: 5px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
     }
@@ -120,55 +125,59 @@
     }
 
     /* 显示下拉内容时更改下拉按钮的背景颜色 */
-    .my-dropdown:hover .my-dropbtn {
+    .my-dropdown:hover .my-drop-btn {
         background-color: #1868E8;
     }
 
-    /* 设置选项卡样式 */
-    .tab {
-        float: left;
-        border: 1px solid #ccc;
-        background-color: #f1f1f1;
-        width: 30%;
-        height: 300px;
-    }
-
-    /* 为用于打开选项卡内容的按钮设置样式 */
-    .tab button {
-        display: block;
-        background-color: inherit;
-        color: black;
-        padding: 22px 16px;
-        width: 100%;
-        border: none;
-        outline: none;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    /* 更改悬停按钮的背景颜色 */
-    .tab button:hover {
-        background-color: #ddd;
-    }
-
-    /* 创建一个活动的/当前的 "tab button" 类 */
-    .tab button.active {
-        background-color: #ccc;
-    }
-
-    /* 设置选项卡内容的样式 */
-    .tabcontent {
-        float: left;
-        padding: 0px 12px;
-        border: 1px solid #ccc;
-        width: 70%;
-        border-left: none;
-        height: 300px;
+    .child-type {
+        position: absolute;
+        background-color: #d3d1d3;
+        margin-left: 160px;
+        margin-top: -47px;
+        width: 200px;
+        height: 188px;
+        border-radius: 5px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         display: none;
+        overflow-y: scroll;
     }
+
 
 </style>
 <script>
+
+    // 悬停分类中下拉菜单显示对应内容
+    function mouseOpenChildType(articleTypeId) {
+        let childArticleTypeId = 'ch' + articleTypeId;
+        let childType = document.getElementsByClassName("child-type");
+        // 遍历
+        for (let i = 0; i < childType.length; i++) {
+            childType[i].style.display = "none";
+        }
+        document.getElementById(childArticleTypeId).style.display = "block";
+    }
+
+    // 点击分类中下拉菜单显示对应内容
+    function clickOpenChildType(articleTypeId) {
+        let fatherArticleTypeId = 'fa' + articleTypeId;
+        let fatherType = document.getElementsByClassName("father-type");
+        // 遍历
+        for (let i = 0; i < fatherType.length; i++) {
+            fatherType[i].style.background = "#f1f1f1";
+        }
+        document.getElementById(fatherArticleTypeId).style.background = "#5493f8";
+        mouseOpenChildType(articleTypeId)
+    }
+
+    //初始化函数
+    $(function () {
+        let childType = document.getElementsByClassName("child-type");
+        // 遍历
+        for (var i = 0; i < childType.length; i++) {
+            var marginTop = -47 - i * 47;
+            childType[i].style.marginTop = marginTop + "px";
+        }
+    });
 
     // 搜索按钮
     function searchBtn() {
