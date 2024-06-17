@@ -19,7 +19,6 @@ import java.io.IOException;
 public class CaptchaController {
 
     @GetMapping("getCaptcha")
-    @LogAnnotation(module = "登录注册", operator = "获取验证码")
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 定义图形验证码的长和宽
         CircleCaptcha captcha = Captcha.getCaptcha(request);

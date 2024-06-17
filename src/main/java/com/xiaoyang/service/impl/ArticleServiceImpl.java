@@ -55,8 +55,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Resource
     private ArticleTypeService articleTypeService;
 
-    @Resource
-    private ServletContext servletContext;
 
     @Resource
     private ArticleTagService articleTagService;
@@ -108,7 +106,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (!articleTagListService.saveBatch(articleTagLists, 50)) {
             throw new RuntimeException("发布文章失败，保存标签失败");
         }
-        servletContext.removeAttribute("articleIndexList");
 
         redisCache.deleteObject("articleIndexList");
 
@@ -128,7 +125,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         userCollectMapper.delete(Wrappers.<UserCollect>lambdaQuery()
                 .eq(UserCollect::getCollectArticleId, articleId));
 
-        servletContext.removeAttribute("articleIndexList");
+        redisCache.deleteObject("articleIndexList");
+        redisCache.deleteObject("hotArticleIdList");
         List<Comment> commentList = commentService.list(Wrappers.<Comment>lambdaQuery().eq(Comment::getArticleId, articleId)
                 .select(Comment::getCommentId));
         if (CollUtil.isNotEmpty(commentList)) {

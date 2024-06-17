@@ -9,6 +9,7 @@ import com.xiaoyang.pojo.UserCollect;
 import com.xiaoyang.service.ArticleService;
 import com.xiaoyang.service.UserCollectService;
 import com.xiaoyang.mapper.UserCollectMapper;
+import com.xiaoyang.utils.RedisCache;
 import com.xiaoyang.utils.Result;
 import com.xiaoyang.vo.article.UserCollectArticlePageVo;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class UserCollectServiceImpl extends ServiceImpl<UserCollectMapper, UserC
     private ArticleService articleService;
 
     @Resource
-    private ServletContext servletContext;
+    private RedisCache redisCache;
 
 
     @Override
@@ -48,7 +49,7 @@ public class UserCollectServiceImpl extends ServiceImpl<UserCollectMapper, UserC
         if (!remove(Wrappers.<UserCollect>lambdaQuery().eq(UserCollect::getCollectArticleId, articleId))) {
             return Result.failed("取消收藏失败");
         }
-        servletContext.removeAttribute("articleIndexList");
+        redisCache.deleteObject("articleIndexList");
         Article article = articleService.getById(articleId);
         article.setArticleCollectionNums(article.getArticleCollectionNums() - 1);
         articleService.updateById(article);

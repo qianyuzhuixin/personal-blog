@@ -51,7 +51,7 @@ public class LogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         LogAnnotation logAnnotation = method.getAnnotation(LogAnnotation.class);
-        log.info("===========================log start============================");
+        log.info("===========================log start==========================");
         log.info("module: {}", logAnnotation.module());
         log.info("operator: {}", logAnnotation.operator());
 

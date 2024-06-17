@@ -20,7 +20,7 @@ public class CommentReply implements Serializable {
     /**
      * 评论回复id
      */
-    @TableId
+    @TableId(value = "comment_reply_id")
     private String commentReplyId;
 
     /**

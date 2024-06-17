@@ -1,5 +1,6 @@
 package com.xiaoyang.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -13,7 +14,7 @@ import lombok.Data;
 @TableName(value = "admin")
 @Data
 public class Admin implements Serializable {
-    @TableId
+    @TableId(value = "admin_id")
     private String adminId;
 
     private String adminName;
